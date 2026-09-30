@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { notifications as initialNotifications } from "../../mock/data";
-import "../../styles/notifications.css";
+//import "../../styles/notifications.css";
 
 export default function Notifications({ compact = false }) {
   const [items, setItems] = useState(initialNotifications);
