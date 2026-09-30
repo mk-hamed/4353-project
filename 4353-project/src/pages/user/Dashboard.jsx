@@ -39,7 +39,7 @@ export default function Dashboard() {
           <strong>{s.name}</strong>{" "}
           <span className={"badge ${s.status}"}>{s.status}</span>
           <p>
-            {s.description} * {s.queueLength} waiting
+            {s.description} | {s.queueLength} waiting
           </p>
         </div>
       ))}
