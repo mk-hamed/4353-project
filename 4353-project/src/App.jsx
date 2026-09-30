@@ -11,6 +11,7 @@ import Login from "./auth/pages/Login.jsx";
 import Register from "./auth/pages/Register.jsx";
 import DemoLanding from "./auth/pages/DemoLanding.jsx";
 import "./auth/styles/auth.css";
+import "./user-screens.css";
 
 function AuthenticationLayout() {
   return (

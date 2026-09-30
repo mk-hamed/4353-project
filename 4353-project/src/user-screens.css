@@ -1,0 +1,150 @@
+
+#root:has(.qs-user-surface) {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  border: 0;
+  display: block;
+  text-align: left;
+}
+
+/* The surface: tokens + base typography. Add className="qs-user-surface"
+   to the wrapper in UserLayout.jsx. */
+.qs-user-surface {
+  --qs-green: #145849;
+  --qs-green-dark: #0c4739;
+  --qs-muted: #697a74;
+  --qs-line: #e0e7df;
+  --qs-soft: #f3f5f1;
+  --qs-focus: #628f63;
+
+  font-family: "DM Sans", Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  color: #203a34;
+  background: #f9faf7;
+  color-scheme: light;
+  text-align: left;
+  min-width: 320px;
+  min-height: 100svh;
+  -webkit-font-smoothing: antialiased;
+}
+.qs-user-surface,
+.qs-user-surface * { box-sizing: border-box; }
+.qs-user-surface :where(h1, h2, h3, p) { margin: 0; }
+.qs-user-surface :where(h1, h2, h3) {
+  font-family: "Manrope", Arial, sans-serif;
+  color: #243f34;
+}
+.qs-user-surface :is(a, button):focus-visible {
+  outline: 3px solid var(--qs-focus);
+  outline-offset: 3px;
+}
+
+/* <nav> in UserLayout. NavLink adds the "active" class automatically. */
+.qs-user-surface > nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  padding: 14px 28px;
+  min-height: 72px;
+  background: #fff;
+  border-bottom: 1px solid var(--qs-line);
+}
+.qs-user-surface > nav a {
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  color: #718074;
+  padding: 9px 14px;
+  border-radius: 7px;
+}
+.qs-user-surface > nav a:hover { background: var(--qs-soft); }
+.qs-user-surface > nav a.active {
+  color: #224939;
+  background: #fff;
+  box-shadow: 0 0 0 1px var(--qs-line), 0 1px 4px #314d3020;
+}
+
+/* <main>: the page container */
+.qs-user-surface > main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 36px 28px 56px;
+}
+.qs-user-surface main h1 {
+  font-size: 32px;
+  font-weight: 650;
+  letter-spacing: -1.3px;
+  line-height: 1.25;
+  margin-bottom: 24px;
+}
+.qs-user-surface main > h2 {
+  font-size: 20px;
+  font-weight: 650;
+  letter-spacing: -0.6px;
+  margin: 32px 0 14px;
+}
+
+/* .card */
+.qs-user-surface .card {
+  background: #fff;
+  border: 1px solid #e3e9e0;
+  border-radius: 16px;
+  padding: 22px 24px;
+  margin-bottom: 16px;
+  box-shadow: 0 14px 50px -36px #304e3540;
+}
+.qs-user-surface .card h2 {
+  font-size: 18px;
+  font-weight: 650;
+  letter-spacing: -0.5px;
+  margin-bottom: 12px;
+}
+.qs-user-surface .card p + p { margin-top: 6px; }
+.qs-user-surface .card > p:not(:first-child),
+.qs-user-surface .card > p:last-of-type { color: var(--qs-muted); font-size: 13px; }
+.qs-user-surface .card strong { font-weight: 650; color: #243f34; }
+
+/* Links inside cards ("View Details", "Join one") */
+.qs-user-surface .card a {
+  display: inline-block;
+  margin-top: 14px;
+  padding: 10px 18px;
+  border-radius: 8px;
+  background: var(--qs-green);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background-color 0.15s;
+}
+.qs-user-surface .card a:hover { background: var(--qs-green-dark); }
+
+/* .badge: status pill. Class names must match the status values. */
+.qs-user-surface .badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 4px 9px;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 500;
+  background: var(--qs-soft);
+  color: #5e745b;
+  text-transform: capitalize;
+}
+.qs-user-surface .badge.open,
+.qs-user-surface .badge.served { background: #eff5e9; color: #4b7144; }
+.qs-user-surface .badge.waiting { background: #fdf3df; color: #8a6414; }
+.qs-user-surface .badge.almost-ready { background: #e6f1f5; color: #2d6479; }
+.qs-user-surface .badge.closed { background: #fff1ee; color: #a53930; }
+
+@media (max-width: 850px) {
+  .qs-user-surface > nav { padding: 10px 18px; }
+  .qs-user-surface > main { padding: 26px 18px 44px; }
+  .qs-user-surface main h1 { font-size: 28px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .qs-user-surface * { transition: none !important; }
+}
