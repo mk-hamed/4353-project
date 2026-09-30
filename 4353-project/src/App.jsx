@@ -4,12 +4,16 @@ import Dashboard from "./pages/user/Dashboard";
 
 export default function App() {
   return (
+    /* Auth routing */
+    
+    /* User routing */
     <Routes>
       <Route element={<UserLayout />}>
         <Route path="/dashboard" element={<Dashboard />} />
-        {/* more pages go here as we build them */}
       </Route>
       <Route path="*" element={<Navigate to="/dashboard" />} />
     </Routes>
+
+    /* Admin routing */
   );
 }
