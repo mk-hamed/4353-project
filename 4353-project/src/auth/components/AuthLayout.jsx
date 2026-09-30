@@ -116,7 +116,7 @@ export default function AuthLayout({ children }) {
         </aside>
         <section
           className="qs-form-panel"
-          aria-label={isRegistration ? "Registration" : "Login"}
+          aria-label={isRegistration ? "Registration" : pathname === "/login" ? "Login" : "Sign-in confirmation"}
         >
           <div className="qs-form-container">
             {(pathname === "/login" || pathname === "/register") && (

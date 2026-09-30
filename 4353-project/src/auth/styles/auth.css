@@ -1,61 +1,62 @@
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;450;500;550;600;650;700&family=Manrope:wght@400;500;600;650;700;750;800&display=swap");
 
-:root {
+/* Only authentication routes use this surface. Team dashboard styles stay intact. */
+#root:has(.qs-auth-surface) {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  border: 0;
+  display: block;
+  text-align: left;
+}
+.qs-auth-surface {
   font-family: "DM Sans", Arial, sans-serif;
   color: #203a34;
   background: #f9faf7;
+  color-scheme: light;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   font-weight: 400;
   font-size: 15px;
+  line-height: normal;
+  letter-spacing: normal;
+  text-align: left;
+  min-width: 320px;
+  min-height: 100svh;
   --qs-green: #145849;
   --qs-muted: #697a74;
   --qs-line: #e0e7df;
   --qs-focus: #b7d4bd;
 }
-* {
-  box-sizing: border-box;
-}
-body {
-  margin: 0;
-  min-width: 320px;
-}
-button,
-input {
-  font: inherit;
-}
-button,
-a {
-  -webkit-tap-highlight-color: transparent;
-}
-button {
-  cursor: pointer;
-}
-a {
+.qs-auth-surface,
+.qs-auth-surface * { box-sizing: border-box; }
+.qs-auth-surface :where(h1, h2, p) {
+  font-family: inherit;
+  font-weight: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
   color: inherit;
+  margin: 0;
 }
-button:disabled {
-  cursor: wait;
-  opacity: 0.6;
-}
-button:focus-visible,
-a:focus-visible {
+.qs-auth-surface button,
+.qs-auth-surface input { font: inherit; }
+.qs-auth-surface button,
+.qs-auth-surface a { -webkit-tap-highlight-color: transparent; }
+.qs-auth-surface button { cursor: pointer; }
+.qs-auth-surface a { color: inherit; }
+.qs-auth-surface button:disabled { cursor: wait; opacity: 0.6; }
+.qs-auth-surface button:focus-visible,
+.qs-auth-surface a:focus-visible {
   outline: 3px solid #628f63;
   outline-offset: 4px;
 }
-button svg {
-  flex-shrink: 0;
+.qs-auth-surface button svg { flex-shrink: 0; }
+.qs-auth-surface button {
+  transition: background-color 0.15s, box-shadow 0.15s, transform 0.15s;
 }
-button {
-  transition:
-    background-color 0.15s,
-    box-shadow 0.15s,
-    transform 0.15s;
-}
-button:active:not(:disabled) {
-  transform: translateY(1px);
-}
+.qs-auth-surface button:active:not(:disabled) { transform: translateY(1px); }
 .qs-app {
   max-width: 1552px;
   margin: auto;
@@ -1001,8 +1002,30 @@ button:active:not(:disabled) {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  * {
+  .qs-auth-surface * {
     transition: none !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* Session control for the existing user layout. */
+.qs-session-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
+.qs-session-bar span { overflow-wrap: anywhere; }
+.qs-session-bar button {
+  font: inherit;
+  padding: 7px 14px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-h);
+  background: var(--bg);
+  cursor: pointer;
 }

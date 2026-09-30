@@ -3,8 +3,8 @@ import assert from "node:assert/strict";
 import {
   validateLogin,
   validateRegistration,
-} from "../src/utils/validation.js";
-import { DEMO_ACCOUNTS, login, register } from "../src/services/authService.js";
+} from "../src/auth/utils/validation.js";
+import { DEMO_ACCOUNTS, login, register } from "../src/auth/services/authService.js";
 
 test("blank login fields and malformed emails are rejected", () => {
   assert.deepEqual(Object.keys(validateLogin({ email: "", password: "" })), [
