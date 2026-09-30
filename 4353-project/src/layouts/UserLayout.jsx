@@ -2,7 +2,7 @@ import { NavLink, Outlet } from "react-router-dom";
 
 export default function UserLayout() {
   return (
-    <>
+    <div className="qs-user-surface">
       <nav>
         <NavLink to="/dashboard">Dashboard</NavLink>
         <NavLink to="/join-queue">Join Queue</NavLink>
@@ -12,6 +12,6 @@ export default function UserLayout() {
       <main>
         <Outlet />
       </main>
-    </>
+    </div>
   );
 }

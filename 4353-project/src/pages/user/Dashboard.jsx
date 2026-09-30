@@ -37,7 +37,7 @@ export default function Dashboard() {
       {services.map((s) => (
         <div className="card" key={s.id}>
           <strong>{s.name}</strong>{" "}
-          <span className={"badge ${s.status}"}>{s.status}</span>
+          <span className={`badge ${s.status}`}>{s.status}</span>
           <p>
             {s.description} | {s.queueLength} waiting
           </p>

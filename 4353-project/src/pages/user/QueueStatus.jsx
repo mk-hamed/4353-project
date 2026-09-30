@@ -33,7 +33,7 @@ export default function QueueStatus() {
       <h1>Queue Status</h1>
       <section className="card">
         <h2>{service.name}</h2>
-        <span className="{'badge ${currentQueue.status}'}">
+        <span className={`badge ${currentQueue.status}`}>
           {statusLabels[currentQueue.status]}
         </span>
         <p>{statusMessages[currentQueue.status]}</p>

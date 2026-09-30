@@ -18,7 +18,7 @@ export default function JoinQueue() {
         return (
           <div className="card" key={s.id}>
             <strong>{s.name}</strong>{" "}
-            <span className={"badge ${s.status}"}>{s.status}</span>
+            <span className={`badge ${s.status}`}>{s.status}</span>
             <p>{s.description}</p>
             <p>
               {s.queueLength} waiting | Estimated wait: {estimatedWait} min
