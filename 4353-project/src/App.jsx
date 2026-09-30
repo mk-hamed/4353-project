@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Routes, Route, Navigate, Outlet, useNavigate } from "react-router-dom";
 import UserLayout from "./layouts/UserLayout";
 import Dashboard from "./pages/user/Dashboard";
+import QueueStatus from "./pages/user/QueueStatus";
+import History from "./pages/user/History";
 import AuthLayout from "./auth/components/AuthLayout.jsx";
 import Login from "./auth/pages/Login.jsx";
 import Register from "./auth/pages/Register.jsx";
@@ -50,6 +52,9 @@ export default function App() {
   }
 
   return (
+    /* Auth routing */
+
+    /* User routing */
     <Routes>
       <Route element={<AuthenticationLayout />}>
         <Route
@@ -67,9 +72,12 @@ export default function App() {
       </Route>
       <Route element={requireRole("user", <UserSession user={user} onLogout={logout} />)}>
         <Route path="/dashboard" element={<Dashboard />} />
-        {/* more pages go here as we build them */}
+        <Route path="/queue-status" element={<QueueStatus />} />
+        <Route path="/history" element={<History />} />
       </Route>
       <Route path="*" element={<Navigate to={user ? destination : "/login"} replace />} />
     </Routes>
+
+    /* Admin routing */
   );
 }
