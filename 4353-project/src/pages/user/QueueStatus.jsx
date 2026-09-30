@@ -24,4 +24,26 @@ export default function QueueStatus() {
       />
     );
   }
+
+  const service = services.find((s) => s.id === currentQueue.serviceId);
+  const wait = currentQueue.position * service.durationMin;
+
+  return (
+    <>
+      <h1>Queue Status</h1>
+      <section className="card">
+        <h2>{service.name}</h2>
+        <span className="{'badge ${currentQueue.status}'}">
+          {statusLabels[currentQueue.status]}
+        </span>
+        <p>{statusMessages[currentQueue.status]}</p>
+        <p>
+          <strong>Position: </strong> {currentQueue.position}
+        </p>
+        <p>
+          <strong>Estimated wait:</strong> {wait} min
+        </p>
+      </section>
+    </>
+  );
 }
