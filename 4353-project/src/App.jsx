@@ -5,7 +5,7 @@ import Dashboard from "./pages/user/Dashboard";
 export default function App() {
   return (
     /* Auth routing */
-    
+
     /* User routing */
     <Routes>
       <Route element={<UserLayout />}>
