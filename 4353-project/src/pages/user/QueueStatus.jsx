@@ -2,7 +2,7 @@ import { services, currentQueue } from "../../mock/data";
 import EmptyState from "../../components/user/EmptyState";
 
 const statusLabels = {
-  waiting: "Waiting",
+  waiting: "Waiting...",
   "almost-ready": "Almost ready",
   served: "Served",
 };
