@@ -28,7 +28,7 @@ export default function Dashboard() {
         ) : (
           <>
             <p>You're not in a join queue.</p>
-            <Link to="join-queue">Join one</Link>
+            <Link to="/join-queue">Join one</Link>
           </>
         )}
       </section>
