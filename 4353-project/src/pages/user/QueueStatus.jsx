@@ -1,5 +1,6 @@
-import { services, currentQueue } from "../../mock/data";
+import { services } from "../../mock/data";
 import EmptyState from "../../components/user/EmptyState";
+import { useQueue } from "../../context/QueueContext";
 
 const statusLabels = {
   waiting: "Waiting...",
@@ -14,6 +15,8 @@ const statusMessages = {
 };
 
 export default function QueueStatus() {
+  const { currentQueue } = useQueue();
+
   if (!currentQueue) {
     return (
       <EmptyState

@@ -8,7 +8,11 @@ export function QueueProvider({ children }) {
 
   function joinQueue(serviceId) {
     const service = services.find((s) => s.id === serviceId);
-    setCurrentQueue({ serviceId, position: service.queueLength + 1 });
+    setCurrentQueue({
+      serviceId,
+      position: service.queueLength + 1,
+      status: "waiting",
+    });
   }
 
   function leaveQueue() {
