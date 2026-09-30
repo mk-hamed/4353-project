@@ -1,10 +1,9 @@
-import { useState } from "react";
-import { services, currentQueue } from "../../mock/data";
+import { useQueue } from "../../context/QueueContext";
+import { services } from "../../mock/data";
 
 export default function JoinQueue() {
-  const [joinedId, setJoinedId] = useState(
-    currentQueue ? currentQueue.serviceId : null,
-  );
+  const { currentQueue, joinQueue, leaveQueue } = useQueue();
+  const joinedId = currentQueue ? currentQueue.serviceId : null;
 
   return (
     <>
@@ -12,8 +11,8 @@ export default function JoinQueue() {
       {services.map((s) => {
         const isJoined = joinedId === s.id;
         const isClosed = s.status === "closed";
-        const inAnotherQueue = joinedId !== null && isJoined;
-        const estimatedWait = (s.queueLength + 1) * s.duratonMin;
+        const inAnotherQueue = joinedId !== null && !isJoined;
+        const estimatedWait = (s.queueLength + 1) * s.durationMin;
 
         return (
           <div className="card" key={s.id}>
@@ -24,13 +23,13 @@ export default function JoinQueue() {
               {s.queueLength} waiting | Estimated wait: {estimatedWait} min
             </p>
             {isJoined ? (
-              <button className="secondary" onClick={() => setJoinedId(null)}>
+              <button className="secondary" onClick={leaveQueue}>
                 Leave Queue
               </button>
             ) : (
               <button
                 disabled={isClosed || inAnotherQueue}
-                onClick={() => setJoinedId(s.id)}
+                onClick={() => joinQueue(s.id)}
               >
                 Join Queue
               </button>

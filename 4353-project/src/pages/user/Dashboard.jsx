@@ -1,7 +1,9 @@
 import { Link } from "react-router-dom";
-import { services, currentQueue, notifications } from "../../mock/data";
+import { services, notifications } from "../../mock/data";
+import { useQueue } from "../../context/QueueContext";
 
 export default function Dashboard() {
+  const { currentQueue } = useQueue();
   const unread = notifications.filter((n) => !n.read).length;
   const myService = currentQueue
     ? services.find((s) => s.id === currentQueue.serviceId)
@@ -27,7 +29,7 @@ export default function Dashboard() {
           </>
         ) : (
           <>
-            <p>You're not in a join queue.</p>
+            <p>You're not in a queue.</p>
             <Link to="/join-queue">Join one</Link>
           </>
         )}
