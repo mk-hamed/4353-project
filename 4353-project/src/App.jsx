@@ -5,6 +5,7 @@ import Dashboard from "./pages/user/Dashboard";
 import QueueStatus from "./pages/user/QueueStatus";
 import History from "./pages/user/History";
 import JoinQueue from "./pages/user/JoinQueue";
+import Notifications from "./pages/user/Notifications";
 import AuthLayout from "./auth/components/AuthLayout.jsx";
 import Login from "./auth/pages/Login.jsx";
 import Register from "./auth/pages/Register.jsx";
@@ -75,7 +76,8 @@ export default function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/queue-status" element={<QueueStatus />} />
         <Route path="/history" element={<History />} />
-        <Route path="/join-queue" element={<JoinQueue />} />
+        <Route path="/join-queue" element={<JoinQueue />} /> 
+        <Route path="/notifications" element={<Notifications />} />
       </Route>
       <Route path="*" element={<Navigate to={user ? destination : "/login"} replace />} />
     </Routes>
