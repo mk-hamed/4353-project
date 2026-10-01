@@ -5,10 +5,12 @@ import { notifications as initialNotifications } from "../../mock/data";
 export default function Notifications({ compact = false }) {
   const [items, setItems] = useState(initialNotifications);
 
+
   const unreadCount = useMemo(
     () => items.filter((notification) => !notification.read).length,
     [items],
   );
+
 
   function markAsRead(id) {
     setItems((current) =>
@@ -25,6 +27,7 @@ export default function Notifications({ compact = false }) {
   }
 
   const visibleItems = compact ? items.slice(0, 3) : items;
+
 
   return (
     <section className={`notifications-panel${compact ? " notifications-panel--compact" : ""}`} aria-labelledby="notifications-heading">

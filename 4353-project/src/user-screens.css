@@ -1,4 +1,3 @@
-
 #root:has(.qs-user-surface) {
   width: 100%;
   max-width: none;
@@ -30,8 +29,12 @@
   -webkit-font-smoothing: antialiased;
 }
 .qs-user-surface,
-.qs-user-surface * { box-sizing: border-box; }
-.qs-user-surface :where(h1, h2, h3, p) { margin: 0; }
+.qs-user-surface * {
+  box-sizing: border-box;
+}
+.qs-user-surface :where(h1, h2, h3, p) {
+  margin: 0;
+}
 .qs-user-surface :where(h1, h2, h3) {
   font-family: "Manrope", Arial, sans-serif;
   color: #243f34;
@@ -60,11 +63,15 @@
   padding: 9px 14px;
   border-radius: 7px;
 }
-.qs-user-surface > nav a:hover { background: var(--qs-soft); }
+.qs-user-surface > nav a:hover {
+  background: var(--qs-soft);
+}
 .qs-user-surface > nav a.active {
   color: #224939;
   background: #fff;
-  box-shadow: 0 0 0 1px var(--qs-line), 0 1px 4px #314d3020;
+  box-shadow:
+    0 0 0 1px var(--qs-line),
+    0 1px 4px #314d3020;
 }
 
 /* <main>: the page container */
@@ -102,10 +109,18 @@
   letter-spacing: -0.5px;
   margin-bottom: 12px;
 }
-.qs-user-surface .card p + p { margin-top: 6px; }
+.qs-user-surface .card p + p {
+  margin-top: 6px;
+}
 .qs-user-surface .card > p:not(:first-child),
-.qs-user-surface .card > p:last-of-type { color: var(--qs-muted); font-size: 13px; }
-.qs-user-surface .card strong { font-weight: 650; color: #243f34; }
+.qs-user-surface .card > p:last-of-type {
+  color: var(--qs-muted);
+  font-size: 13px;
+}
+.qs-user-surface .card strong {
+  font-weight: 650;
+  color: #243f34;
+}
 
 /* Links inside cards ("View Details", "Join one") */
 .qs-user-surface .card a {
@@ -120,7 +135,9 @@
   text-decoration: none;
   transition: background-color 0.15s;
 }
-.qs-user-surface .card a:hover { background: var(--qs-green-dark); }
+.qs-user-surface .card a:hover {
+  background: var(--qs-green-dark);
+}
 
 /* .badge: status pill. Class names must match the status values. */
 .qs-user-surface .badge {
@@ -135,18 +152,38 @@
   text-transform: capitalize;
 }
 .qs-user-surface .badge.open,
-.qs-user-surface .badge.served { background: #eff5e9; color: #4b7144; }
-.qs-user-surface .badge.waiting { background: #fdf3df; color: #8a6414; }
-.qs-user-surface .badge.almost-ready { background: #e6f1f5; color: #2d6479; }
-.qs-user-surface .badge.closed { background: #fff1ee; color: #a53930; }
+.qs-user-surface .badge.served {
+  background: #eff5e9;
+  color: #4b7144;
+}
+.qs-user-surface .badge.waiting {
+  background: #fdf3df;
+  color: #8a6414;
+}
+.qs-user-surface .badge.almost-ready {
+  background: #e6f1f5;
+  color: #2d6479;
+}
+.qs-user-surface .badge.closed {
+  background: #fff1ee;
+  color: #a53930;
+}
 
 @media (max-width: 850px) {
-  .qs-user-surface > nav { padding: 10px 18px; }
-  .qs-user-surface > main { padding: 26px 18px 44px; }
-  .qs-user-surface main h1 { font-size: 28px; }
+  .qs-user-surface > nav {
+    padding: 10px 18px;
+  }
+  .qs-user-surface > main {
+    padding: 26px 18px 44px;
+  }
+  .qs-user-surface main h1 {
+    font-size: 28px;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
-  .qs-user-surface * { transition: none !important; }
+  .qs-user-surface * {
+    transition: none !important;
+  }
 }
 
 /* Buttons inside cards (Join / Leave Queue) */
@@ -165,7 +202,9 @@
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.15s, transform 0.15s;
+  transition:
+    background-color 0.15s,
+    transform 0.15s;
 }
 .qs-user-surface .card button:hover:not(:disabled) {
   background: var(--qs-green-dark);
@@ -212,19 +251,156 @@
   border-bottom: 1px solid #edf0e7;
   color: #3e5248;
 }
-.qs-user-surface tbody tr:last-child td { border-bottom: 0; }
-.qs-user-surface tbody tr:hover td { background: #fbfcf9; }
-.qs-user-surface td .badge { margin-left: 0; } /* badges have a left margin for use next to text */
+.qs-user-surface tbody tr:last-child td {
+  border-bottom: 0;
+}
+.qs-user-surface tbody tr:hover td {
+  background: #fbfcf9;
+}
+.qs-user-surface td .badge {
+  margin-left: 0;
+} /* badges have a left margin for use next to text */
 
 /* Outcome badges (class comes from outcomeClass in History.jsx) */
-.qs-user-surface .badge.left-queue { background: #fdf3df; color: #8a6414; }
+.qs-user-surface .badge.left-queue {
+  background: #fdf3df;
+  color: #8a6414;
+}
 .qs-user-surface .badge.cancelled,
-.qs-user-surface .badge.no-show { background: #fff1ee; color: #a53930; }
+.qs-user-surface .badge.no-show {
+  background: #fff1ee;
+  color: #a53930;
+}
 
 /* EmptyState */
 .qs-user-surface .card.empty-state {
   text-align: center;
   padding: 48px 24px;
 }
-.qs-user-surface .card.empty-state h2 { margin-bottom: 8px; }
-.qs-user-surface .card.empty-state p { max-width: 360px; margin: 0 auto; }
+.qs-user-surface .card.empty-state h2 {
+  margin-bottom: 8px;
+}
+.qs-user-surface .card.empty-state p {
+  max-width: 360px;
+  margin: 0 auto;
+}
+
+/* Notifications panel (components/user/Notifications.jsx) */
+.qs-user-surface .notifications-panel {
+  background: #fff;
+  border: 1px solid #e3e9e0;
+  border-radius: 16px;
+  padding: 22px 24px;
+  margin-bottom: 16px;
+  box-shadow: 0 14px 50px -36px #304e3540;
+}
+.qs-user-surface .notifications-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.qs-user-surface .notifications-kicker {
+  font-size: 9px;
+  letter-spacing: 1.7px;
+  font-weight: 650;
+  color: #83917c;
+}
+.qs-user-surface .notifications-header h2 {
+  font-size: 18px;
+  font-weight: 650;
+  letter-spacing: -0.5px;
+  margin: 6px 0 4px;
+}
+.qs-user-surface .notifications-header p {
+  font-size: 12px;
+  color: var(--qs-muted);
+}
+
+/* Buttons: "Mark all as read" (outline) and per-item "Mark as read" (text link style) */
+.qs-user-surface .notifications-mark-all {
+  font: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid #dfe7d9;
+  background: #fff;
+  color: #345a41;
+  cursor: pointer;
+}
+.qs-user-surface .notifications-mark-all:hover {
+  background: #edf4e7;
+  border-color: #c4d3bb;
+}
+.qs-user-surface .notification-content button {
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  margin-top: 6px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #345a41;
+  cursor: pointer;
+}
+.qs-user-surface .notification-content button:hover {
+  text-decoration: underline;
+}
+
+/* List */
+.qs-user-surface .notification-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.qs-user-surface .notification-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 0;
+  border-top: 1px solid #edf0e7;
+}
+.qs-user-surface .notification-dot {
+  width: 8px;
+  height: 8px;
+  margin-top: 7px;
+  border-radius: 50%;
+  background: #62996b;
+  box-shadow: 0 0 0 4px #e8efe4;
+  flex-shrink: 0;
+}
+.qs-user-surface .notification-content {
+  flex: 1;
+}
+.qs-user-surface .notification-content p {
+  font-size: 13px;
+  color: #3e5248;
+}
+.qs-user-surface .notification-badge {
+  font-size: 9px;
+  font-weight: 650;
+  letter-spacing: 0.8px;
+  padding: 3px 7px;
+  border-radius: 5px;
+  background: #eff5e9;
+  color: #4b7144;
+}
+
+/* Read items fade back */
+.qs-user-surface .notification-item--read .notification-dot {
+  background: #d3dccf;
+  box-shadow: none;
+}
+.qs-user-surface .notification-item--read .notification-content p {
+  color: var(--qs-muted);
+}
+
+.qs-user-surface .notification-empty {
+  font-size: 13px;
+  color: var(--qs-muted);
+  padding: 18px 0 4px;
+  text-align: center;
+}
