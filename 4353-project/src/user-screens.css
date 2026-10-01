@@ -148,3 +148,41 @@
 @media (prefers-reduced-motion: reduce) {
   .qs-user-surface * { transition: none !important; }
 }
+
+/* Buttons inside cards (Join / Leave Queue) */
+.qs-user-surface .card button {
+  font: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 14px;
+  min-height: 42px;
+  padding: 10px 18px;
+  border-radius: 8px;
+  border: 1px solid var(--qs-green);
+  background: var(--qs-green);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s, transform 0.15s;
+}
+.qs-user-surface .card button:hover:not(:disabled) {
+  background: var(--qs-green-dark);
+}
+.qs-user-surface .card button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+.qs-user-surface .card button.secondary {
+  background: #fff;
+  color: #345a41;
+  border-color: #dfe7d9;
+}
+.qs-user-surface .card button.secondary:hover:not(:disabled) {
+  background: #edf4e7;
+  border-color: #c4d3bb;
+}
+.qs-user-surface .card button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
