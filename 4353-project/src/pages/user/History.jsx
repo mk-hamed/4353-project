@@ -3,7 +3,7 @@ import EmptyState from "../../components/user/EmptyState";
 
 // Turn "Left queue" into "left-queue" so it matches a CSS class
 function outcomeClass(outcome) {
-  return outcome.toLowerCase().replace(" ", "-");
+  return outcome.toLowerCase().replace(/\s+/g, "-");
 }
 
 export default function History() {
