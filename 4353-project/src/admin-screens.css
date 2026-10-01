@@ -1,0 +1,107 @@
+/* Admin-only styles. All classes are prefixed "qs-admin-" to avoid clashing with teammates' CSS.
+   Base tokens, nav, .card and .badge come from user-screens.css via the qs-user-surface wrapper. */
+
+.qs-user-surface .qs-admin-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+}
+.qs-user-surface .qs-admin-stat {
+  font-family: "Manrope", Arial, sans-serif;
+  font-size: 34px;
+  font-weight: 650;
+  color: var(--qs-green);
+  line-height: 1.1;
+}
+
+.qs-user-surface .qs-admin-table-wrap { overflow-x: auto; }
+.qs-user-surface .qs-admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.qs-user-surface .qs-admin-table th {
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--qs-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--qs-line);
+}
+.qs-user-surface .qs-admin-table td {
+  padding: 12px;
+  border-bottom: 1px solid var(--qs-line);
+  vertical-align: middle;
+}
+.qs-user-surface .qs-admin-table tr:last-child td { border-bottom: 0; }
+.qs-user-surface .qs-admin-sub { color: var(--qs-muted); font-size: 12.5px; }
+
+.qs-user-surface .qs-admin-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.qs-user-surface .qs-admin-card-head {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 12px; flex-wrap: wrap; margin-bottom: 12px;
+}
+.qs-user-surface .qs-admin-card-head h2 { margin-bottom: 0; }
+
+/* Buttons (also used on <Link>) */
+.qs-user-surface .card .qs-admin-btn,
+.qs-user-surface .qs-admin-btn {
+  display: inline-block;
+  margin: 0;
+  padding: 8px 14px;
+  border: 1px solid var(--qs-green);
+  border-radius: 8px;
+  background: var(--qs-green);
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+.qs-user-surface .qs-admin-btn:hover:not(:disabled) { background: var(--qs-green-dark); }
+.qs-user-surface .card .qs-admin-btn.secondary,
+.qs-user-surface .qs-admin-btn.secondary { background: #fff; color: var(--qs-green); border-color: var(--qs-line); }
+.qs-user-surface .card .qs-admin-btn.secondary:hover:not(:disabled),
+.qs-user-surface .qs-admin-btn.secondary:hover:not(:disabled) { background: var(--qs-soft); }
+.qs-user-surface .card .qs-admin-btn.danger,
+.qs-user-surface .qs-admin-btn.danger { background: #fff; color: #a53930; border-color: #f0c9c3; }
+.qs-user-surface .card .qs-admin-btn.danger:hover:not(:disabled),
+.qs-user-surface .qs-admin-btn.danger:hover:not(:disabled) { background: #fff1ee; }
+.qs-user-surface .qs-admin-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.qs-user-surface button:focus-visible { outline: 3px solid var(--qs-focus); outline-offset: 3px; }
+
+/* Forms */
+.qs-user-surface .qs-admin-form { display: grid; gap: 16px; }
+.qs-user-surface .qs-admin-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.qs-user-surface .qs-admin-field { display: grid; gap: 6px; }
+.qs-user-surface .qs-admin-field label { font-size: 13px; font-weight: 600; color: #243f34; }
+.qs-user-surface .qs-admin-field :is(input, select, textarea) {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #cfd9d0;
+  border-radius: 8px;
+  font: inherit;
+  color: inherit;
+  background: #fff;
+}
+.qs-user-surface .qs-admin-field :is(input, select, textarea):focus {
+  outline: 3px solid var(--qs-focus);
+  outline-offset: 0;
+  border-color: var(--qs-focus);
+}
+.qs-user-surface .qs-admin-field [aria-invalid="true"] { border-color: #a53930; }
+.qs-user-surface .qs-admin-hint { font-size: 12.5px; color: var(--qs-muted); }
+.qs-user-surface .qs-admin-error { font-size: 12.5px; color: #a53930; }
+.qs-user-surface .card .qs-admin-success,
+.qs-user-surface .qs-admin-success {
+  background: #eff5e9; color: #4b7144; border-radius: 8px;
+  padding: 10px 14px; font-size: 13.5px; margin-bottom: 14px;
+}
+
+@media (max-width: 650px) {
+  .qs-user-surface .qs-admin-row { grid-template-columns: 1fr; }
+}
