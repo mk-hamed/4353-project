@@ -148,3 +148,83 @@
 @media (prefers-reduced-motion: reduce) {
   .qs-user-surface * { transition: none !important; }
 }
+
+/* Buttons inside cards (Join / Leave Queue) */
+.qs-user-surface .card button {
+  font: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 14px;
+  min-height: 42px;
+  padding: 10px 18px;
+  border-radius: 8px;
+  border: 1px solid var(--qs-green);
+  background: var(--qs-green);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s, transform 0.15s;
+}
+.qs-user-surface .card button:hover:not(:disabled) {
+  background: var(--qs-green-dark);
+}
+.qs-user-surface .card button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+.qs-user-surface .card button.secondary {
+  background: #fff;
+  color: #345a41;
+  border-color: #dfe7d9;
+}
+.qs-user-surface .card button.secondary:hover:not(:disabled) {
+  background: #edf4e7;
+  border-color: #c4d3bb;
+}
+.qs-user-surface .card button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* History table */
+.qs-user-surface .card:has(table) {
+  padding: 8px 24px;
+  overflow-x: auto; /* scrolls sideways on narrow screens instead of breaking the layout */
+}
+.qs-user-surface table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.qs-user-surface th {
+  text-align: left;
+  font-size: 10px;
+  letter-spacing: 1.3px;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: #7c8d7d;
+  padding: 16px 12px 12px;
+  border-bottom: 1px solid var(--qs-line);
+}
+.qs-user-surface td {
+  padding: 16px 12px;
+  border-bottom: 1px solid #edf0e7;
+  color: #3e5248;
+}
+.qs-user-surface tbody tr:last-child td { border-bottom: 0; }
+.qs-user-surface tbody tr:hover td { background: #fbfcf9; }
+.qs-user-surface td .badge { margin-left: 0; } /* badges have a left margin for use next to text */
+
+/* Outcome badges (class comes from outcomeClass in History.jsx) */
+.qs-user-surface .badge.left-queue { background: #fdf3df; color: #8a6414; }
+.qs-user-surface .badge.cancelled,
+.qs-user-surface .badge.no-show { background: #fff1ee; color: #a53930; }
+
+/* EmptyState */
+.qs-user-surface .card.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+}
+.qs-user-surface .card.empty-state h2 { margin-bottom: 8px; }
+.qs-user-surface .card.empty-state p { max-width: 360px; margin: 0 auto; }
