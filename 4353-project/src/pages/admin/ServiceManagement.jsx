@@ -115,6 +115,7 @@ export default function ServiceManagement() {
               value={values.name}
               onChange={change}
               maxLength={100}
+              required
               aria-invalid={!!errors.name}
               aria-describedby="svc-name-msg"
             />
@@ -131,6 +132,7 @@ export default function ServiceManagement() {
               rows={3}
               value={values.description}
               onChange={change}
+              required
               maxLength={500}
               aria-invalid={!!errors.description}
               aria-describedby="svc-desc-msg"
@@ -152,6 +154,7 @@ export default function ServiceManagement() {
                 step="1"
                 value={values.durationMin}
                 onChange={change}
+                required
                 aria-invalid={!!errors.durationMin}
                 aria-describedby="svc-duration-msg"
               />
@@ -167,6 +170,7 @@ export default function ServiceManagement() {
                 name="priority"
                 value={values.priority}
                 onChange={change}
+                required
                 aria-invalid={!!errors.priority}
               >
                 {PRIORITIES.map((p) => (
