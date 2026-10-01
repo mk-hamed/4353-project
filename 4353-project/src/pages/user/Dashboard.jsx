@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom";
-import { services, notifications } from "../../mock/data";
+import { services } from "../../mock/data";
 import { useQueue } from "../../context/QueueContext";
+import { useNotifications } from "../../context/NotificationsContext";
+import Notifications from "../../components/user/Notifications";
 
 export default function Dashboard() {
   const { currentQueue } = useQueue();
-  const unread = notifications.filter((n) => !n.read).length;
+  const { unreadCount } = useNotifications();
   const myService = currentQueue
     ? services.find((s) => s.id === currentQueue.serviceId)
     : null;
@@ -46,10 +48,7 @@ export default function Dashboard() {
         </div>
       ))}
 
-      <section className="card">
-        <h2>Notifications</h2>
-        <p>You have {unread} unread notifications.</p>
-      </section>
+      <Notifications compact />
     </>
   );
 }
