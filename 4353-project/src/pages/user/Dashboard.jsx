@@ -1,12 +1,12 @@
 import { Link } from "react-router-dom";
 import { services } from "../../mock/data";
 import { useQueue } from "../../context/QueueContext";
-import { useNotifications } from "../../context/NotificationsContext";
+//import { useNotifications } from "../../context/NotificationsContext";
 import Notifications from "../../components/user/Notifications";
 
 export default function Dashboard() {
   const { currentQueue } = useQueue();
-  const { unreadCount } = useNotifications();
+  //const { unreadCount } = useNotifications();
   const myService = currentQueue
     ? services.find((s) => s.id === currentQueue.serviceId)
     : null;
