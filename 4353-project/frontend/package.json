@@ -8,7 +8,8 @@
     "build": "vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "test:auth": "node --test tests/auth.test.js"
+    "test:auth": "node --test tests/auth.test.js",
+    "test:services": "node --test tests/serviceApi.test.js"
   },
   "dependencies": {
     "react": "^19.2.8",

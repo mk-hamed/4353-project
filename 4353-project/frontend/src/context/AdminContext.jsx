@@ -1,42 +1,62 @@
-import { createContext, useContext, useState } from "react";
-import { services as seedServices } from "../mock/data";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import * as serviceApi from "../services/serviceApi.js";
 import { seedQueues } from "../mock/adminData";
 
 const AdminContext = createContext(null);
 
-export function AdminProvider({ children }) {
-  const [services, setServices] = useState(seedServices);
+export function AdminProvider({ children, token }) {
+  const [services, setServices] = useState([]);
   const [queues, setQueues] = useState(seedQueues);
   const [lastServed, setLastServed] = useState({}); // { [serviceId]: user }
 
-  // queueLength is derived so it can never drift from the actual queue.
-  const servicesWithLength = services.map((s) => ({
-    ...s,
-    queueLength: queues[s.id]?.length ?? 0,
-  }));
+  const [servicesLoading, setServicesLoading] = useState(true);
+  const [servicesError, setServicesError] = useState("");
 
-  function toggleStatus(id) {
-    setServices((list) =>
-      list.map((s) =>
-        s.id === id ? { ...s, status: s.status === "open" ? "closed" : "open" } : s
-      )
-    );
+  const refreshServices = useCallback(async () => {
+    setServicesLoading(true);
+    setServicesError("");
+    try {
+      setServices(await serviceApi.listServices());
+    } catch (error) {
+      setServicesError(error.message);
+    } finally {
+      setServicesLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    serviceApi.listServices().then(
+      (data) => { if (active) setServices(data); },
+      (error) => { if (active) setServicesError(error.message); },
+    ).finally(() => { if (active) setServicesLoading(false); });
+    return () => { active = false; };
+  }, []);
+
+  async function toggleStatus(id) {
+    const service = services.find((item) => item.id === id);
+    return updateService(id, { status: service.status === "open" ? "closed" : "open" });
   }
 
-  function addService(data) {
-    const id = Math.max(0, ...services.map((s) => s.id)) + 1;
-    setServices((list) => [...list, { id, status: "open", ...data }]);
-    setQueues((q) => ({ ...q, [id]: [] }));
+  async function addService(data) {
+    const created = await serviceApi.createService(data, token);
+    setServices((list) => [...list, created]);
+    setQueues((q) => ({ ...q, [created.id]: [] }));
+    return created;
   }
 
-  function updateService(id, data) {
-    setServices((list) => list.map((s) => (s.id === id ? { ...s, ...data } : s)));
+  async function updateService(id, data) {
+    const updated = await serviceApi.updateService(id, data, token);
+    setServices((list) => list.map((s) => (s.id === id ? updated : s)));
+    return updated;
   }
 
+  // Member 3 owns the remaining A2 mock queue actions below. Service fields and
+  // queueLength above come from the API; do not overwrite them with seedQueues.
   function removeUser(serviceId, userId) {
     setQueues((q) => ({
       ...q,
-      [serviceId]: q[serviceId].filter((u) => u.id !== userId),
+      [serviceId]: (q[serviceId] || []).filter((u) => u.id !== userId),
     }));
   }
 
@@ -60,7 +80,10 @@ export function AdminProvider({ children }) {
   return (
     <AdminContext.Provider
       value={{
-        services: servicesWithLength,
+        services,
+        servicesLoading,
+        servicesError,
+        refreshServices,
         queues,
         lastServed,
         toggleStatus,

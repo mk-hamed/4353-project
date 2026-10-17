@@ -30,6 +30,20 @@ function validate(values, services, editingId) {
 }
 
 export default function ServiceManagement() {
+  const { servicesLoading, servicesError, refreshServices } = useAdmin();
+  const [searchParams] = useSearchParams();
+  if (servicesLoading) return <p role="status">Loading services...</p>;
+  if (servicesError) return (
+    <section className="card">
+      <p role="alert" className="qs-admin-error">{servicesError}</p>
+      <button type="button" className="qs-admin-btn" onClick={refreshServices}>Retry</button>
+    </section>
+  );
+  // Mount only after the API loads so dashboard edit links prefill correctly.
+  return <ServiceManagementForm key={searchParams.get("edit") || "create"} />;
+}
+
+function ServiceManagementForm() {
   const { services, addService, updateService } = useAdmin();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -48,12 +62,15 @@ export default function ServiceManagement() {
   );
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   function change(e) {
     const { name, value } = e.target;
     setValues((v) => ({ ...v, [name]: value }));
     setErrors((er) => ({ ...er, [name]: undefined }));
     setMessage("");
+    setSubmitError("");
   }
 
   function startEdit(s) {
@@ -66,17 +83,23 @@ export default function ServiceManagement() {
     });
     setErrors({});
     setMessage("");
+    setSubmitError("");
   }
 
   function reset() {
+    setMessage("");
+    setSubmitError("");
     setEditingId(null);
     setValues(EMPTY);
     setErrors({});
     if (searchParams.get("edit")) setSearchParams({});
   }
 
-  function submit(e) {
+  async function submit(e) {
     e.preventDefault();
+    if (saving) return;
+    setMessage("");
+    setSubmitError("");
     const found = validate(values, services, editingId);
     setErrors(found);
     if (Object.keys(found).length) return;
@@ -87,14 +110,23 @@ export default function ServiceManagement() {
       durationMin: Number(values.durationMin),
       priority: values.priority,
     };
-    if (editingId) {
-      updateService(editingId, data);
-      setMessage(`Updated "${data.name}".`);
-    } else {
-      addService(data);
-      setMessage(`Created "${data.name}".`);
+    setSaving(true);
+    try {
+      if (editingId) {
+        const updated = await updateService(editingId, data);
+        setMessage(`Updated "${updated.name}".`);
+      } else {
+        const created = await addService(data);
+        setMessage(`Created "${created.name}".`);
+      }
+      // Keep the edit URL and form after save; resetting it remounts this form
+      // and would hide the confirmation. Create forms clear after success.
+      if (!editingId) { setValues(EMPTY); setErrors({}); }
+    } catch (error) {
+      setSubmitError(error.message);
+    } finally {
+      setSaving(false);
     }
-    reset();
   }
 
   return (
@@ -105,98 +137,102 @@ export default function ServiceManagement() {
         <h2>{editingId ? "Edit service" : "Create a service"}</h2>
         {message && <p className="qs-admin-success" role="status">{message}</p>}
 
+        {submitError && <p className="qs-admin-error" role="alert">{submitError}</p>}
         <form onSubmit={submit} noValidate className="qs-admin-form">
-          <div className="qs-admin-field">
-            <label htmlFor="svc-name">Service name *</label>
-            <input
-              id="svc-name"
-              name="name"
-              type="text"
-              value={values.name}
-              onChange={change}
-              maxLength={100}
-              required
-              aria-invalid={!!errors.name}
-              aria-describedby="svc-name-msg"
-            />
-            <span id="svc-name-msg" className={errors.name ? "qs-admin-error" : "qs-admin-hint"}>
-              {errors.name || `${values.name.length}/100 characters`}
-            </span>
-          </div>
-
-          <div className="qs-admin-field">
-            <label htmlFor="svc-desc">Description *</label>
-            <textarea
-              id="svc-desc"
-              name="description"
-              rows={3}
-              value={values.description}
-              onChange={change}
-              required
-              maxLength={500}
-              aria-invalid={!!errors.description}
-              aria-describedby="svc-desc-msg"
-            />
-            <span id="svc-desc-msg" className={errors.description ? "qs-admin-error" : "qs-admin-hint"}>
-              {errors.description || `${values.description.length}/500 characters`}
-            </span>
-          </div>
-
-          <div className="qs-admin-row">
+          <fieldset disabled={saving} className="qs-admin-fieldset">
             <div className="qs-admin-field">
-              <label htmlFor="svc-duration">Expected duration (minutes) *</label>
+              <label htmlFor="svc-name">Service name *</label>
               <input
-                id="svc-duration"
-                name="durationMin"
-                type="number"
-                min="1"
-                max="480"
-                step="1"
-                value={values.durationMin}
+                id="svc-name"
+                name="name"
+                type="text"
+                value={values.name}
                 onChange={change}
+                maxLength={100}
                 required
-                aria-invalid={!!errors.durationMin}
-                aria-describedby="svc-duration-msg"
+                aria-invalid={!!errors.name}
+                aria-describedby="svc-name-msg"
               />
-              <span id="svc-duration-msg" className={errors.durationMin ? "qs-admin-error" : "qs-admin-hint"}>
-                {errors.durationMin || "Whole minutes, 1 to 480"}
+              <span id="svc-name-msg" className={errors.name ? "qs-admin-error" : "qs-admin-hint"}>
+                {errors.name || `${values.name.length}/100 characters`}
               </span>
             </div>
 
             <div className="qs-admin-field">
-              <label htmlFor="svc-priority">Priority level *</label>
-              <select
-                id="svc-priority"
-                name="priority"
-                value={values.priority}
+              <label htmlFor="svc-desc">Description *</label>
+              <textarea
+                id="svc-desc"
+                name="description"
+                rows={3}
+                value={values.description}
                 onChange={change}
                 required
-                aria-invalid={!!errors.priority}
-              >
-                {PRIORITIES.map((p) => (
-                  <option key={p} value={p}>
-                    {p[0].toUpperCase() + p.slice(1)}
-                  </option>
-                ))}
-              </select>
-              {errors.priority && <span className="qs-admin-error">{errors.priority}</span>}
+                maxLength={500}
+                aria-invalid={!!errors.description}
+                aria-describedby="svc-desc-msg"
+              />
+              <span id="svc-desc-msg" className={errors.description ? "qs-admin-error" : "qs-admin-hint"}>
+                {errors.description || `${values.description.length}/500 characters`}
+              </span>
             </div>
-          </div>
 
-          <div className="qs-admin-actions">
-            <button type="submit" className="qs-admin-btn">
-              {editingId ? "Save changes" : "Create service"}
-            </button>
-            {editingId && (
-              <button type="button" className="qs-admin-btn secondary" onClick={reset}>
-                Cancel
+            <div className="qs-admin-row">
+              <div className="qs-admin-field">
+                <label htmlFor="svc-duration">Expected duration (minutes) *</label>
+                <input
+                  id="svc-duration"
+                  name="durationMin"
+                  type="number"
+                  min="1"
+                  max="480"
+                  step="1"
+                  value={values.durationMin}
+                  onChange={change}
+                  required
+                  aria-invalid={!!errors.durationMin}
+                  aria-describedby="svc-duration-msg"
+                />
+                <span id="svc-duration-msg" className={errors.durationMin ? "qs-admin-error" : "qs-admin-hint"}>
+                  {errors.durationMin || "Whole minutes, 1 to 480"}
+                </span>
+              </div>
+
+              <div className="qs-admin-field">
+                <label htmlFor="svc-priority">Priority level *</label>
+                <select
+                  id="svc-priority"
+                  name="priority"
+                  value={values.priority}
+                  onChange={change}
+                  required
+                  aria-invalid={!!errors.priority}
+                >
+                  {PRIORITIES.map((p) => (
+                    <option key={p} value={p}>
+                      {p[0].toUpperCase() + p.slice(1)}
+                    </option>
+                  ))}
+                </select>
+                {errors.priority && <span className="qs-admin-error">{errors.priority}</span>}
+              </div>
+            </div>
+
+            <div className="qs-admin-actions">
+              <button type="submit" className="qs-admin-btn">
+                {saving ? "Saving..." : editingId ? "Save changes" : "Create service"}
               </button>
-            )}
-          </div>
+              {editingId && (
+                <button type="button" className="qs-admin-btn secondary" onClick={reset}>
+                  Cancel
+                </button>
+              )}
+            </div>
+          </fieldset>
         </form>
       </section>
 
       <h2>Existing services</h2>
+      {!services.length && <p>No services yet. Create one above.</p>}
       <div className="card qs-admin-table-wrap">
         <table className="qs-admin-table">
           <thead>
@@ -221,7 +257,7 @@ export default function ServiceManagement() {
                   <span className={`badge ${s.status}`}>{s.status}</span>
                 </td>
                 <td>
-                  <button type="button" className="qs-admin-btn secondary" onClick={() => startEdit(s)}>
+                  <button type="button" className="qs-admin-btn secondary" disabled={saving} onClick={() => startEdit(s)}>
                     Edit
                   </button>
                 </td>
