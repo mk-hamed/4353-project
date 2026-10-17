@@ -1,15 +1,14 @@
 const express = require("express");
 const cors = require("cors");
-const { services } = require("./mock/data");
 const { notFound, errorHandler } = require("./middleware/errorHandler");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.get("/api/services", (req, res) => {
-  res.json(services);
-});
+// Member 1: mount verified-token middleware before this router to set req.user.
+// GET is public; POST/PUT enforce admin access inside the services router.
+app.use("/api/services", require("./routes/services"));
 
 // team members add routes above this line
 

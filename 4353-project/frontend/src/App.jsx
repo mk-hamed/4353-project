@@ -35,7 +35,7 @@ function AdminSession({ user, onLogout }) {
         <span>Signed in as {user.email} (admin)</span>
         <button type="button" onClick={onLogout}>Sign out</button>
       </div>
-      <AdminLayout />
+      <AdminLayout token={user.token} />
     </>
   );
 }
