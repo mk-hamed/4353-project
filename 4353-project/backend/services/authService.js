@@ -72,4 +72,12 @@ async function login({ email, password } = {}) {
   return { token, user: toPublicUser(user) };
 }
 
-module.exports = { register, login, validateRegistration };
+function getUserById(id) {
+  const user = users.find((u) => u.id === id);
+  if (!user) {
+    throw new AppError("User no longer exists", 401);
+  }
+  return toPublicUser(user);
+}
+
+module.exports = { register, login, validateRegistration, getUserById };
