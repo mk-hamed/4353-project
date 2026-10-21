@@ -3,7 +3,7 @@ const app = require("../app");
 const { users } = require("../mock/data");
 
 beforeEach(() => {
-  users.splice(1); // keep only the seeded admin
+  users.splice(2);
 });
 
 describe("POST /api/auth/register", () => {
@@ -36,7 +36,7 @@ describe("POST /api/auth/login", () => {
   it("returns a token and user for valid credentials", async () => {
     const res = await request(app)
       .post("/api/auth/login")
-      .send({ email: "admin@queuesmart.com", password: "admin1234" });
+      .send({ email: "admin@queuesmart.test", password: "Queue123!" });
     expect(res.statusCode).toBe(200);
     expect(res.body.token).toEqual(expect.any(String));
     expect(res.body.user.role).toBe("admin");
@@ -45,7 +45,7 @@ describe("POST /api/auth/login", () => {
   it("returns 401 for a wrong password", async () => {
     const res = await request(app)
       .post("/api/auth/login")
-      .send({ email: "admin@queuesmart.com", password: "wrong-pass" });
+      .send({ email: "admin@queuesmart.test", password: "wrong-pass" });
     expect(res.statusCode).toBe(401);
   });
 });
@@ -59,7 +59,7 @@ describe("GET /api/auth/me", () => {
   it("returns the current user with a valid token", async () => {
     const login = await request(app)
       .post("/api/auth/login")
-      .send({ email: "admin@queuesmart.com", password: "admin1234" });
+      .send({ email: "admin@queuesmart.com", password: "Queue123!" });
     const res = await request(app)
       .get("/api/auth/me")
       .set("Authorization", `Bearer ${login.body.token}`);
