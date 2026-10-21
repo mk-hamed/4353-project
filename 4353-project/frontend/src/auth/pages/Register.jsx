@@ -106,7 +106,7 @@ export default function Register() {
           type="password"
           placeholder="Create a password"
           autoComplete="new-password"
-          hint="Use 8–128 characters."
+          hint="Use 8–72 characters."
           value={values.password}
           onChange={change}
           error={errors.password}

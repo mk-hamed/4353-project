@@ -1,6 +1,6 @@
 // These are front-end demo rules, not a replacement for server validation.
 export const MIN_PASSWORD_LENGTH = 8;
-export const MAX_PASSWORD_LENGTH = 128;
+export const MAX_PASSWORD_LENGTH = 72;
 
 export function normalizeEmail(email) {
   return email.trim().toLowerCase();
@@ -30,7 +30,7 @@ export function validateRegistration({ email, password, confirmPassword }) {
   if (!errors.password && password.length < MIN_PASSWORD_LENGTH) {
     errors.password = "Use at least 8 characters for your password.";
   } else if (!errors.password && password.length > MAX_PASSWORD_LENGTH) {
-    errors.password = "Use 128 characters or fewer for your password.";
+    errors.password = "Use 72 characters or fewer for your password.";
   }
   if (!confirmPassword) {
     errors.confirmPassword = "Enter your password again.";
