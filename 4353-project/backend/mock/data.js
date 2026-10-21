@@ -32,10 +32,16 @@ const services = [
 
 const users = [
   {
-    id: 1, 
-    email: 'admin@queuesmart.com',
-    passwordHash: bcrypt.hashSync('admin1234', 10),
-    role: 'admin',
+    id: 1,
+    email: "admin@queuesmart.test",
+    passwordHash: bcrypt.hashSync("Queue123!", 10),
+    role: "admin",
+  },
+  {
+    id: 2,
+    email: "user@queuesmart.test",
+    passwordHash: bcrypt.hashSync("Queue123!", 10),
+    role: "user",
   },
 ];
 

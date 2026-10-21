@@ -4,7 +4,7 @@ const { users } = require("../mock/data");
 const { JWT_SECRET } = require("../config");
 
 beforeEach(() => {
-  users.splice(1);
+  users.splice(2);
 });
 
 describe("register", () => {
@@ -69,15 +69,15 @@ describe("login", () => {
 
   it("lets the seeded admin log in", async () => {
     const { user } = await login({
-      email: "admin@queuesmart.com",
-      password: "admin1234",
+      email: "admin@queuesmart.test",
+      password: "Queue123!",
     });
     expect(user.role).toBe("admin");
   });
 
   it("rejects a wrong password with 401", async () => {
     await expect(
-      login({ email: "admin@queuesmart.com", password: "wrong-pass" }),
+      login({ email: "admin@queuesmart.test", password: "wrong-pass" }),
     ).rejects.toMatchObject({ statusCode: 401 });
   });
 
