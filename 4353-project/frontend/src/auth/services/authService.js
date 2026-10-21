@@ -3,9 +3,8 @@ import {
   validateLogin,
   validateRegistration,
 } from "../utils/validation.js";
+import { apiRequest, setToken, clearToken } from "../../api/client.js";
 
-// A2 mock only. All accounts below live in memory and reset on a page refresh.
-// Replace these functions with API calls in A3. Never ship this as real auth.
 export const DEMO_PASSWORD = "Queue123!";
 export const DEMO_ACCOUNTS = {
   user: {
@@ -20,42 +19,40 @@ export const DEMO_ACCOUNTS = {
   },
 };
 
-const accounts = new Map(
-  Object.values(DEMO_ACCOUNTS).map((account) => [
-    account.email,
-    { ...account },
-  ]),
-);
-
-function publicUser(account) {
-  // Never return a password to the rest of the app.
-  return { email: account.email, role: account.role };
-}
-
 export async function login({ email, password }) {
   const errors = validateLogin({ email, password });
   if (Object.keys(errors).length)
     throw new Error("Check your email and password.");
-  const account = accounts.get(normalizeEmail(email));
-  if (!account || account.password !== password) {
-    throw new Error(
-      "Email or password is incorrect. Try again or use a demo account below.",
-    );
-  }
-  return publicUser(account);
+
+  const { token, user } = await apiRequest("/api/auth/login", {
+    method: "POST",
+    body: { email: normalizeEmail(email), password },
+  });
+  setToken(token);
+  return user; // { id, email, role }, which is what Login.jsx already expects
 }
 
 export async function register(values) {
   const errors = validateRegistration(values);
   if (Object.keys(errors).length)
     throw new Error("Please fix the highlighted fields.");
-  const email = normalizeEmail(values.email);
-  if (accounts.has(email)) {
-    throw new Error(
-      "An account with this email already exists. Sign in instead.",
-    );
+
+  // Send only what the backend needs; confirmPassword stays in the browser.
+  return apiRequest("/api/auth/register", {
+    method: "POST",
+    body: { email: normalizeEmail(values.email), password: values.password },
+  });
+}
+
+export async function getCurrentUser() {
+  try {
+    return await apiRequest("/api/auth/me");
+  } catch (error) {
+    if (error.status === 401) clearToken();
+    return null;
   }
-  const account = { email, password: values.password, role: "user" };
-  accounts.set(email, account);
-  return publicUser(account);
+}
+
+export function logout() {
+  clearToken();
 }
