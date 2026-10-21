@@ -1,4 +1,7 @@
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+const API_URL =
+  (typeof import.meta !== "undefined" && import.meta.env?.VITE_API_URL) ||
+  process.env.VITE_API_URL ||
+  "http://localhost:3001";
 const TOKEN_KEY = "queuesmart_token";
 
 export function getToken() {

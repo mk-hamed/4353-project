@@ -1,10 +1,30 @@
+globalThis.localStorage = {
+  store: {},
+  getItem(key) {
+    return this.store[key] || null;
+  },
+  setItem(key, value) {
+    this.store[key] = String(value);
+  },
+  removeItem(key) {
+    delete this.store[key];
+  },
+  clear() {
+    this.store = {};
+  },
+};
+
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
   validateLogin,
   validateRegistration,
 } from "../src/auth/utils/validation.js";
-import { DEMO_ACCOUNTS, login, register } from "../src/auth/services/authService.js";
+import {
+  DEMO_ACCOUNTS,
+  login,
+  register,
+} from "../src/auth/services/authService.js";
 
 test("blank login fields and malformed emails are rejected", () => {
   assert.deepEqual(Object.keys(validateLogin({ email: "", password: "" })), [
