@@ -1,3 +1,5 @@
+const bcrypt = require("bcrypt");
+
 const services = [
   {
     id: 1,
@@ -28,4 +30,19 @@ const services = [
   },
 ];
 
-module.exports = { services };
+const users = [
+  {
+    id: 1,
+    email: "admin@queuesmart.test",
+    passwordHash: bcrypt.hashSync("Queue123!", 10),
+    role: "admin",
+  },
+  {
+    id: 2,
+    email: "user@queuesmart.test",
+    passwordHash: bcrypt.hashSync("Queue123!", 10),
+    role: "user",
+  },
+];
+
+module.exports = { services, users };
