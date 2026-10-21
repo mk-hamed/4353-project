@@ -117,7 +117,7 @@ test("duplicate registrations reject emails regardless of case or surrounding sp
       password: "Queue123!",
       confirmPassword: "Queue123!",
     }),
-    /already exists/,
+    /Email is already registered/,
   );
 });
 
@@ -131,27 +131,31 @@ test("invalid registration does not create an account", async () => {
   );
   await assert.rejects(
     login({ email: "invalid@example.com", password: "short" }),
-    /incorrect/,
+    /Invalid email or password/,
   );
 });
 
 test("password characters, including surrounding spaces, are preserved", async () => {
+  const uniqueEmail = `spaces_${Date.now()}@example.com`;
+
   await register({
-    email: "spaces@example.com",
+    email: uniqueEmail,
     password: " padded password ",
     confirmPassword: " padded password ",
   });
+
   assert.equal(
     (
       await login({
-        email: "spaces@example.com",
+        email: uniqueEmail,
         password: " padded password ",
       })
     ).role,
-    "user",
+    "user"
   );
+
   await assert.rejects(
-    login({ email: "spaces@example.com", password: "padded password" }),
-    /incorrect/,
+    login({ email: uniqueEmail, password: "padded password" }),
+    /Invalid email or password/ 
   );
 });
