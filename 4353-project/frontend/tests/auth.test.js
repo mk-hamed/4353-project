@@ -10,6 +10,26 @@ import {
   register,
 } from "../src/auth/services/authService.js";
 
+// Global storage mock
+globalThis.localStorage = (() => {
+  let store = {};
+  return {
+    getItem: (key) => store[key] || null,
+    setItem: (key, value) => {
+      store[key] = String(value);
+    },
+    removeItem: (key) => {
+      delete store[key];
+    },
+    clear: () => {
+      store = {};
+    },
+    get length() {
+      return Object.keys(store).length;
+    },
+  };
+})();
+
 test("blank login fields and malformed emails are rejected", () => {
   assert.deepEqual(Object.keys(validateLogin({ email: "", password: "" })), [
     "email",
@@ -39,8 +59,8 @@ test("registration checks password boundaries, whitespace, and confirmation", ()
     });
   assert.ok(registration("1234567").password);
   assert.deepEqual(registration("12345678"), {});
-  assert.deepEqual(registration("a".repeat(128)), {});
-  assert.ok(registration("a".repeat(129)).password);
+  assert.deepEqual(registration("a".repeat(72)), {});
+  assert.ok(registration("a".repeat(73)).password);
   assert.ok(registration("        ").password);
   assert.ok(registration("Queue123!", "").confirmPassword);
   assert.ok(registration("Queue123!", "different").confirmPassword);
@@ -48,36 +68,46 @@ test("registration checks password boundaries, whitespace, and confirmation", ()
 
 test("demo login returns only the email and the correct role", async () => {
   for (const account of Object.values(DEMO_ACCOUNTS)) {
-    assert.deepEqual(await login(account), {
-      email: account.email,
-      role: account.role,
-    });
+    const result = await login(account);
+    assert.strictEqual(typeof result.id, "number");
+    assert.deepEqual(
+      { email: result.email, role: result.role },
+      { email: account.email, role: account.role },
+    );
   }
 });
 
 test("unknown accounts and incorrect passwords fail", async () => {
   await assert.rejects(
     login({ email: "missing@example.com", password: "Queue123!" }),
-    /incorrect/,
+    /Invalid email or password/,
   );
   await assert.rejects(
     login({ ...DEMO_ACCOUNTS.user, password: "wrong" }),
-    /incorrect/,
+    /Invalid email or password/,
   );
 });
 
 test("new registrations can log in, always as a regular user", async () => {
+  const uniqueEmail = `new_${Date.now()}@example.com`;
+
   const account = await register({
-    email: " NEW@example.com ",
+    email: `  ${uniqueEmail.toUpperCase()} `,
     password: "DemoPass123!",
     confirmPassword: "DemoPass123!",
     role: "admin",
   });
-  assert.deepEqual(account, { email: "new@example.com", role: "user" });
-  assert.deepEqual(
-    await login({ email: "New@Example.com", password: "DemoPass123!" }),
-    account,
-  );
+
+  assert.strictEqual(account.email, uniqueEmail);
+  assert.strictEqual(account.role, "user");
+  assert.strictEqual(typeof account.id, "number");
+
+  const loggedInAccount = await login({
+    email: uniqueEmail,
+    password: "DemoPass123!",
+  });
+
+  assert.deepEqual(loggedInAccount, account);
 });
 
 test("duplicate registrations reject emails regardless of case or surrounding spaces", async () => {
