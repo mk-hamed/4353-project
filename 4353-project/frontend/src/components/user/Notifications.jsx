@@ -1,30 +1,16 @@
-import { useMemo, useState } from "react";
-import { notifications as initialNotifications } from "../../mock/data";
+import { useNotifications } from "../../context/NotificationsContext";
 //import "../../styles/notifications.css";
 
 export default function Notifications({ compact = false }) {
-  const [items, setItems] = useState(initialNotifications);
+const {
+  items,
+  unreadCount,
+  loading,
+  error,
+  markAsRead,
+  markAllAsRead,
+} = useNotifications();
 
-
-  const unreadCount = useMemo(
-    () => items.filter((notification) => !notification.read).length,
-    [items],
-  );
-
-
-  function markAsRead(id) {
-    setItems((current) =>
-      current.map((notification) =>
-        notification.id === id ? { ...notification, read: true } : notification,
-      ),
-    );
-  }
-
-  function markAllAsRead() {
-    setItems((current) =>
-      current.map((notification) => ({ ...notification, read: true })),
-    );
-  }
 
   const visibleItems = compact ? items.slice(0, 3) : items;
 
@@ -44,9 +30,13 @@ export default function Notifications({ compact = false }) {
         )}
       </div>
 
-      {visibleItems.length === 0 ? (
-        <div className="notification-empty">You're all caught up.</div>
-      ) : (
+     {loading ? (
+  <div className="notification-empty">Loading notifications...</div>
+) : error ? (
+  <div className="notification-empty">{error}</div>
+) : visibleItems.length === 0 ? (
+  <div className="notification-empty">You're all caught up.</div>
+) : (
         <ul className="notification-list">
           {visibleItems.map((notification) => (
             <li key={notification.id} className={`notification-item${notification.read ? " notification-item--read" : ""}`}>
