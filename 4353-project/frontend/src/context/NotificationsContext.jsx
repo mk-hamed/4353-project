@@ -1,29 +1,83 @@
-import { createContext, useContext, useState, useMemo } from "react";
-import { notifications as initialNotifications } from "../mock/data";
+import {
+  createContext,
+  useContext,
+  useState,
+  useMemo,
+  useEffect,
+  useCallback,
+} from "react";
+import { apiRequest } from "../api/client.js";
+import { getCurrentUser } from "../auth/services/authService.js";
 
 const NotificationsContext = createContext(null);
 
 export function NotificationsProvider({ children }) {
-  const [items, setItems] = useState(initialNotifications);
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const refreshNotifications = useCallback(async () => {
+    try {
+      const user = await getCurrentUser();
+
+      if (!user?.id) {
+        setItems([]);
+        setError("Unable to identify the signed-in user.");
+        return;
+      }
+
+      const data = await apiRequest(
+        `/api/notifications/${encodeURIComponent(user.id)}`,
+      );
+
+      setItems(Array.isArray(data) ? data : data?.notifications ?? []);
+      setError("");
+    } catch (err) {
+      setError(err.message || "Unable to load notifications.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    refreshNotifications();
+  }, [refreshNotifications]);
 
   const unreadCount = useMemo(
-    () => items.filter((n) => !n.read).length,
+    () => items.filter((notification) => !notification.read).length,
     [items],
   );
 
-  function markAsRead(id) {
+  const markAsRead = useCallback((id) => {
     setItems((current) =>
-      current.map((n) => (n.id === id ? { ...n, read: true } : n)),
+      current.map((notification) =>
+        notification.id === id
+          ? { ...notification, read: true }
+          : notification,
+      ),
     );
-  }
+  }, []);
 
-  function markAllAsRead() {
-    setItems((current) => current.map((n) => ({ ...n, read: true })));
-  }
+  const markAllAsRead = useCallback(() => {
+    setItems((current) =>
+      current.map((notification) => ({
+        ...notification,
+        read: true,
+      })),
+    );
+  }, []);
 
   return (
     <NotificationsContext.Provider
-      value={{ items, unreadCount, markAsRead, markAllAsRead }}
+      value={{
+        items,
+        unreadCount,
+        loading,
+        error,
+        refreshNotifications,
+        markAsRead,
+        markAllAsRead,
+      }}
     >
       {children}
     </NotificationsContext.Provider>
