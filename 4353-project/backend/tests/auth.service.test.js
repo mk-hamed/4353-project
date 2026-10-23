@@ -53,6 +53,20 @@ describe("register", () => {
       register({ email: "A@TEST.com", password: "password1" }),
     ).rejects.toMatchObject({ statusCode: 409 });
   });
+
+  it("rejects a whitespace-only password", async () => {
+    await expect(
+      register({ email: "a@test.com", password: "        " }),
+    ).rejects.toMatchObject({ statusCode: 400 });
+  });
+
+  it("accepts a password that contains spaces but is not only spaces", async () => {
+    const result = await register({
+      email: "a@test.com",
+      password: " padded password ",
+    });
+    expect(result.role).toBe("user");
+  });
 });
 
 describe("login", () => {

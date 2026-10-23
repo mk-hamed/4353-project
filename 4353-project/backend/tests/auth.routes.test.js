@@ -30,6 +30,16 @@ describe("POST /api/auth/register", () => {
     const res = await request(app).post("/api/auth/register").send(body);
     expect(res.statusCode).toBe(409);
   });
+
+  it("ignores a role sent by the client", async () => {
+    const res = await request(app)
+      .post("/api/auth/register")
+      .send({ email: "sneaky@test.com", password: "password1", role: "admin" });
+    expect(res.statusCode).toBe(201);
+    expect(res.body.role).toBe("user");
+    const stored = users.find((u) => u.email === "sneaky@test.com");
+    expect(stored.role).toBe("user");
+  });
 });
 
 describe("POST /api/auth/login", () => {
@@ -59,11 +69,11 @@ describe("GET /api/auth/me", () => {
   it("returns the current user with a valid token", async () => {
     const login = await request(app)
       .post("/api/auth/login")
-      .send({ email: "admin@queuesmart.com", password: "Queue123!" });
+      .send({ email: "admin@queuesmart.test", password: "Queue123!" });
     const res = await request(app)
       .get("/api/auth/me")
       .set("Authorization", `Bearer ${login.body.token}`);
     expect(res.statusCode).toBe(200);
-    expect(res.body.email).toBe("admin@queuesmart.com");
+    expect(res.body.email).toBe("admin@queuesmart.test");
   });
 });
