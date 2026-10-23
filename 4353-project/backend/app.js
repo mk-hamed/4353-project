@@ -12,6 +12,7 @@ app.use("/api/services", require("./routes/services"));
 app.use("/api/notifications", require("./routes/notifications"));
 app.use("/api/history", require("./routes/history"));
 app.use("/api/auth", require("./routes/auth"));
+app.use("/api/queues", require("./routes/queues"));
 // team members add routes above this line
 
 app.use(notFound);

@@ -45,4 +45,34 @@ const users = [
   },
 ];
 
-module.exports = { services, users };
+// Queue entries (Member 3). One row per user waiting; ordering is computed from
+// priority rank + arrival sequence, never from array position. The seed rows make
+// each service's queueLength above match a real queue, so the admin screens have
+// people to serve in the demo. Seed rows carry demo: true (no notifications/history).
+const DEMO_NAMES = [
+  'ava.johnson', 'liam.chen', 'noah.patel', 'mia.garcia', 'ethan.brown',
+  'sofia.nguyen', 'lucas.martin', 'zoe.williams', 'owen.davis', 'chloe.lopez',
+];
+const queueEntries = [];
+let seedSeq = 1;
+services.forEach((service) => {
+  for (let i = 0; i < service.queueLength; i += 1) {
+    queueEntries.push({
+      id: seedSeq,
+      seq: seedSeq,
+      serviceId: service.id,
+      userId: `demo-${service.id}-${i + 1}`,
+      email: `${DEMO_NAMES[(i + service.id * 3) % DEMO_NAMES.length]}@queuesmart.test`,
+      priority: service.priority,
+      joinedAt: new Date(Date.now() - (service.queueLength - i) * 5 * 60000).toISOString(),
+      almostReadyNotified: true,
+      demo: true,
+    });
+    seedSeq += 1;
+  }
+});
+
+// Latest "served" result per user, so the status screen can show "Served".
+const servedEntries = [];
+
+module.exports = { services, users, queueEntries, servedEntries };
