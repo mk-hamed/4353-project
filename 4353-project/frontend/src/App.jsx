@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Routes, Route, Navigate, Outlet, useNavigate } from "react-router-dom";
 import UserLayout from "./layouts/UserLayout";
+import { QueueProvider } from "./context/QueueContext";
 import Dashboard from "./pages/user/Dashboard";
 import QueueStatus from "./pages/user/QueueStatus";
 import History from "./pages/user/History";
@@ -51,7 +52,9 @@ function UserSession({ user, onLogout }) {
         <span>Signed in as {user.email}</span>
         <button type="button" onClick={onLogout}>Sign out</button>
       </div>
-      <UserLayout />
+      <QueueProvider>
+        <UserLayout />
+      </QueueProvider>
     </>
   );
 }

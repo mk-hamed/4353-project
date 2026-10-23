@@ -1,20 +1,71 @@
+import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useAdmin } from "../../context/AdminContext";
+import * as queueApi from "../../services/queueApi";
+
+const POLL_MS = 5000;
+
+function formatTime(iso) {
+  return new Date(iso).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+}
 
 export default function QueueManagement() {
-  const { services, queues, lastServed, removeUser, moveUser, serveNext } = useAdmin();
+  const { services, servicesLoading, servicesError, refreshServices } = useAdmin();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const selectedId =
     services.find((s) => String(s.id) === searchParams.get("service"))?.id ??
     services[0]?.id;
-  const service = services.find((s) => s.id === selectedId);
-  const queue = (service && queues[service.id]) || [];
-  const served = service ? lastServed[service.id] : null;
+
+  const [view, setView] = useState(null); // { service, length, queue } from the API
+  const [served, setServed] = useState(null); // { serviceId, email }
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const loadQueue = useCallback(async (serviceId) => {
+    try {
+      setView(await queueApi.getQueue(serviceId));
+      setError("");
+    } catch (err) {
+      setError(err.message);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (selectedId === undefined) return undefined;
+    loadQueue(selectedId);
+    // Refresh regularly so people who join or leave appear without a reload.
+    const timer = setInterval(() => loadQueue(selectedId), POLL_MS);
+    return () => clearInterval(timer);
+  }, [selectedId, loadQueue]);
+
+  async function handleServeNext() {
+    setBusy(true);
+    try {
+      const result = await queueApi.serveNext(selectedId);
+      setServed({ serviceId: selectedId, email: result.served.email });
+      setError("");
+    } catch (err) {
+      setError(err.message);
+    }
+    await loadQueue(selectedId);
+    refreshServices();
+    setBusy(false);
+  }
+
+  // Ignore a response that belongs to a previously selected service.
+  const current = view && view.service.id === selectedId ? view : null;
+  const queue = current ? current.queue : [];
+  const justServed = served && served.serviceId === selectedId ? served : null;
 
   return (
     <>
       <h1>Queue Management</h1>
+
+      {(servicesError || error) && (
+        <p className="qs-admin-error" role="alert">{servicesError || error}</p>
+      )}
+      {servicesLoading && services.length === 0 && <p>Loading services...</p>}
 
       <section className="card">
         <div className="qs-admin-field">
@@ -33,25 +84,26 @@ export default function QueueManagement() {
         </div>
       </section>
 
-      {service && (
+      {current && (
         <section className="card">
           <div className="qs-admin-card-head">
             <h2>
-              {service.name} <span className={`badge ${service.status}`}>{service.status}</span>
+              {current.service.name}{" "}
+              <span className={`badge ${current.service.status}`}>{current.service.status}</span>
             </h2>
             <button
               type="button"
               className="qs-admin-btn"
-              onClick={() => serveNext(service.id)}
-              disabled={queue.length === 0}
+              onClick={handleServeNext}
+              disabled={busy || queue.length === 0}
             >
               Serve next
             </button>
           </div>
 
-          {served && (
+          {justServed && (
             <p className="qs-admin-success" role="status">
-              Now serving: {served.name}
+              Now serving: {justServed.email}
             </p>
           )}
 
@@ -64,56 +116,28 @@ export default function QueueManagement() {
                   <tr>
                     <th>#</th>
                     <th>User</th>
+                    <th>Priority</th>
                     <th>Joined</th>
                     <th>Est. wait</th>
-                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {queue.map((u, i) => (
-                    <tr key={u.id}>
-                      <td>{i + 1}</td>
-                      <td>
-                        <strong>{u.name}</strong>
-                        <div className="qs-admin-sub">{u.email}</div>
-                      </td>
-                      <td>{u.joinedAt}</td>
-                      <td>{i * service.durationMin} min</td>
-                      <td>
-                        <div className="qs-admin-actions">
-                          <button
-                            type="button"
-                            className="qs-admin-btn secondary"
-                            onClick={() => moveUser(service.id, i, i - 1)}
-                            disabled={i === 0}
-                            aria-label={`Move ${u.name} up`}
-                          >
-                            ↑
-                          </button>
-                          <button
-                            type="button"
-                            className="qs-admin-btn secondary"
-                            onClick={() => moveUser(service.id, i, i + 1)}
-                            disabled={i === queue.length - 1}
-                            aria-label={`Move ${u.name} down`}
-                          >
-                            ↓
-                          </button>
-                          <button
-                            type="button"
-                            className="qs-admin-btn danger"
-                            onClick={() => removeUser(service.id, u.id)}
-                          >
-                            Remove
-                          </button>
-                        </div>
-                      </td>
+                  {queue.map((entry) => (
+                    <tr key={entry.entryId}>
+                      <td>{entry.position}</td>
+                      <td><strong>{entry.email}</strong></td>
+                      <td style={{ textTransform: "capitalize" }}>{entry.priority}</td>
+                      <td>{formatTime(entry.joinedAt)}</td>
+                      <td>{entry.estimatedWaitMin} min</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
           )}
+          <p className="qs-admin-hint">
+            Served in order of priority, then arrival time.
+          </p>
         </section>
       )}
     </>
