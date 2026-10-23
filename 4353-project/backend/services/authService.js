@@ -19,6 +19,15 @@ function validateRegistration({ email, password } = {}) {
   if (typeof password !== "string" || password === "") {
     throw new AppError("Password is required", 400);
   }
+  if (typeof password !== "string" || password === "") {
+    throw new AppError("Password is required", 400);
+  }
+  if (password.trim() === "") {
+    throw new AppError("Password cannot be only spaces", 400);
+  }
+  if (password.length < 8) {
+    throw new AppError("Password must be at least 8 characters", 400);
+  }
   if (password.length < 8) {
     throw new AppError("Password must be at least 8 characters", 400);
   }
