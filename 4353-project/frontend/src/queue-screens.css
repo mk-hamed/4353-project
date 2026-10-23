@@ -1,0 +1,14 @@
+/* Queue screens (Member 3). Prefixed with qs-queue- so it cannot clash with teammates' CSS. */
+.qs-user-surface .qs-queue-error {
+  background: #fff1ee;
+  color: #a53930;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  font-size: 13.5px;
+}
+.qs-user-surface .qs-queue-note {
+  color: var(--qs-muted);
+  font-size: 13px;
+}
+.qs-user-surface .badge.almost-ready { background: #e6f1f5; color: #2d6479; }

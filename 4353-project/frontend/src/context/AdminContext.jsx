@@ -30,7 +30,14 @@ export function AdminProvider({ children, token }) {
       (data) => { if (active) setServices(data); },
       (error) => { if (active) setServicesError(error.message); },
     ).finally(() => { if (active) setServicesLoading(false); });
-    return () => { active = false; };
+    // Quietly refresh so queue lengths change as users join, leave, or are served.
+    const timer = setInterval(() => {
+      serviceApi.listServices().then(
+        (data) => { if (active) setServices(data); },
+        () => {}, // keep showing the last good data if one refresh fails
+      );
+    }, 5000);
+    return () => { active = false; clearInterval(timer); };
   }, []);
 
   async function toggleStatus(id) {
