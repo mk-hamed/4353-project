@@ -16,11 +16,18 @@ import Login from "./auth/pages/Login.jsx";
 import Register from "./auth/pages/Register.jsx";
 import "./auth/styles/auth.css";
 import "./user-screens.css";
+import { getToken } from "./api/client.js";
+import {
+  getCurrentUser,
+  logout as clearSession,
+} from "./auth/services/authService.js";
 
 function AuthenticationLayout() {
   return (
     <div className="qs-auth-surface">
-      <AuthLayout><Outlet /></AuthLayout>
+      <AuthLayout>
+        <Outlet />
+      </AuthLayout>
     </div>
   );
 }
@@ -34,9 +41,11 @@ function AdminSession({ user, onLogout }) {
     <>
       <div className="qs-session-bar" aria-label="Signed-in account">
         <span>Signed in as {user.email} (admin)</span>
-        <button type="button" onClick={onLogout}>Sign out</button>
+        <button type="button" onClick={onLogout}>
+          Sign out
+        </button>
       </div>
-      <AdminLayout token={user.token} />
+      <AdminLayout token={getToken()} />
     </>
   );
 }
@@ -50,7 +59,9 @@ function UserSession({ user, onLogout }) {
     <>
       <div className="qs-session-bar" aria-label="Signed-in account">
         <span>Signed in as {user.email}</span>
-        <button type="button" onClick={onLogout}>Sign out</button>
+        <button type="button" onClick={onLogout}>
+          Sign out
+        </button>
       </div>
       <QueueProvider>
         <UserLayout />
@@ -61,10 +72,25 @@ function UserSession({ user, onLogout }) {
 
 export default function App() {
   const [user, setUser] = useState(null);
+  const [checking, setChecking] = useState(() => Boolean(getToken()));
   const navigate = useNavigate();
   const destination = user?.role === "admin" ? "/admin" : "/dashboard";
 
+  useEffect(() => {
+    if (!getToken()) return;
+    let cancelled = false;
+    getCurrentUser().then((restored) => {
+      if (cancelled) return;
+      setUser(restored); // null if the token was invalid or expired
+      setChecking(false);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   function logout() {
+    clearSession();
     setUser(null);
     navigate("/login", { replace: true, state: null });
   }
@@ -76,6 +102,8 @@ export default function App() {
     return page;
   }
 
+  if (checking) return <p role="status">Loading…</p>;
+
   return (
     /* Auth routing */
 
@@ -84,26 +112,45 @@ export default function App() {
       <Route element={<AuthenticationLayout />}>
         <Route
           path="/login"
-          element={user ? <Navigate to={destination} replace /> : <Login onLogin={setUser} />}
+          element={
+            user ? (
+              <Navigate to={destination} replace />
+            ) : (
+              <Login onLogin={setUser} />
+            )
+          }
         />
         <Route
           path="/register"
           element={user ? <Navigate to={destination} replace /> : <Register />}
         />
       </Route>
-      <Route element={requireRole("user", <UserSession user={user} onLogout={logout} />)}>
+      <Route
+        element={requireRole(
+          "user",
+          <UserSession user={user} onLogout={logout} />,
+        )}
+      >
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/queue-status" element={<QueueStatus />} />
         <Route path="/history" element={<History />} />
-        <Route path="/join-queue" element={<JoinQueue />} /> 
+        <Route path="/join-queue" element={<JoinQueue />} />
         <Route path="/notifications" element={<Notifications />} />
       </Route>
-      <Route element={requireRole("admin", <AdminSession user={user} onLogout={logout} />)}>
+      <Route
+        element={requireRole(
+          "admin",
+          <AdminSession user={user} onLogout={logout} />,
+        )}
+      >
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/services" element={<ServiceManagement />} />
         <Route path="/admin/queues" element={<QueueManagement />} />
       </Route>
-      <Route path="*" element={<Navigate to={user ? destination : "/login"} replace />} />
+      <Route
+        path="*"
+        element={<Navigate to={user ? destination : "/login"} replace />}
+      />
     </Routes>
 
     /* Admin routing */
