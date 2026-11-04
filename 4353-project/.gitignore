@@ -24,3 +24,8 @@ dist-ssr
 *.sln
 *.sw?
 coverage/
+
+.env
+.env.*
+!.env.example
+.pgdata/
