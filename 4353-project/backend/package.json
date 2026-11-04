@@ -6,8 +6,11 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "test": "jest",
-    "coverage": "jest --coverage"
+    "test": "jest --runInBand",
+    "coverage": "jest --runInBand --coverage",
+    "db:migrate": "node db/migrate.js",
+    "db:seed": "node db/seed.js",
+    "test:services": "jest --runInBand serviceManagement services.test waitTime serviceDatabase"
   },
   "keywords": [],
   "author": "",
@@ -16,8 +19,10 @@
   "dependencies": {
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
+    "dotenv": "^18.0.9",
     "express": "^5.3.0",
-    "jsonwebtoken": "^9.0.3"
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.23.1"
   },
   "devDependencies": {
     "jest": "^30.5.2",
