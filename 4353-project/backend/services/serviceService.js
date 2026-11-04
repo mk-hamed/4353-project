@@ -1,5 +1,6 @@
 const AppError = require('../utils/AppError');
-const { services } = require('../mock/data');
+const repository = require('../repositories/serviceRepository');
+const { getQueueLength } = require('./queueCountService');
 
 const EDITABLE_FIELDS = ['name', 'description', 'durationMin', 'priority', 'status'];
 
@@ -43,46 +44,56 @@ function validateFields(input, partial = false) {
   return result;
 }
 
-function getServiceById(id) {
+function validateId(id) {
   if (!/^[1-9]\d*$/.test(String(id)) || !Number.isSafeInteger(Number(id))) {
     throw new AppError('Service id must be a positive integer', 400);
   }
-  const service = services.find((item) => item.id === Number(id));
-  if (!service) throw new AppError('Service not found', 404);
-  return { ...service };
+  return Number(id);
 }
 
-function checkUniqueName(name, excludeId) {
-  if (services.some((item) => item.id !== excludeId && item.name.toLowerCase() === name.toLowerCase())) {
-    throw new AppError('A service with this name already exists', 409);
+async function withQueueLength(service) {
+  return { ...service, queueLength: await getQueueLength(service.id) };
+}
+
+async function getServiceById(id) {
+  const serviceId = validateId(id);
+  // PostgreSQL INTEGER is bounded; larger valid numeric IDs simply do not exist.
+  const service = serviceId <= 2147483647 ? await repository.find(serviceId) : undefined;
+  if (!service) throw new AppError('Service not found', 404);
+  return withQueueLength(service);
+}
+
+function databaseError(error) {
+  if (error.code === '23505' && error.constraint === 'service_name_unique') {
+    return new AppError('A service with this name already exists', 409);
+  }
+  return error;
+}
+
+async function listServices() {
+  return Promise.all((await repository.list()).map(withQueueLength));
+}
+
+async function createService(input) {
+  const data = validateFields(input);
+  try {
+    return await withQueueLength(await repository.create(data));
+  } catch (error) {
+    throw databaseError(error);
   }
 }
 
-function listServices() {
-  return services.map((service) => ({ ...service }));
-}
-
-function createService(input) {
-  const data = validateFields(input);
-  checkUniqueName(data.name);
-  const service = {
-    id: Math.max(0, ...services.map((item) => item.id)) + 1,
-    status: 'open',
-    ...data,
-    queueLength: 0,
-  };
-  services.push(service);
-  return { ...service };
-}
-
-// Partial updates let the dashboard change status without overwriting other fields.
-function updateService(id, input) {
-  const existing = getServiceById(id);
+async function updateService(id, input) {
+  const serviceId = validateId(id);
   const data = validateFields(input, true);
-  if (data.name !== undefined) checkUniqueName(data.name, existing.id);
-  const service = services.find((item) => item.id === existing.id);
-  Object.assign(service, data);
-  return { ...service };
+  if (serviceId > 2147483647) throw new AppError('Service not found', 404);
+  try {
+    const service = await repository.update(serviceId, data);
+    if (!service) throw new AppError('Service not found', 404);
+    return await withQueueLength(service);
+  } catch (error) {
+    throw databaseError(error);
+  }
 }
 
 module.exports = { listServices, getServiceById, createService, updateService };

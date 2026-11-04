@@ -1,6 +1,6 @@
 const AppError = require('../utils/AppError');
-const { users, services, queueEntries, servedEntries } = require('../mock/data');
-const { getServiceById } = require('./serviceService');
+const { users, queueEntries, servedEntries } = require('../mock/data');
+const { getServiceById, listServices } = require('./serviceService');
 const { calculateWaitTime } = require('./waitTimeService');
 const { addNotification } = require('./notificationService');
 const { addHistoryRecord } = require('./historyService');
@@ -32,12 +32,6 @@ function sortedEntries(serviceId) {
 
 function statusForPosition(position) {
   return position <= ALMOST_READY_POSITION ? 'almost-ready' : 'waiting';
-}
-
-// Keep the service list's queueLength equal to the real queue size.
-function syncQueueLength(serviceId) {
-  const service = services.find((item) => item.id === serviceId);
-  if (service) service.queueLength = queueEntries.filter((entry) => entry.serviceId === serviceId).length;
 }
 
 function describeEntry(entry, service) {
@@ -81,9 +75,9 @@ function notifyAlmostReady(service) {
   });
 }
 
-function joinQueue(userId, serviceId) {
+async function joinQueue(userId, serviceId) {
   validateUserId(userId);
-  const service = getServiceById(serviceId);
+  const service = await getServiceById(serviceId);
   if (service.status !== 'open') throw new AppError('This queue is closed', 409);
 
   const existing = queueEntries.find((entry) => sameUser(entry, userId));
@@ -112,7 +106,6 @@ function joinQueue(userId, serviceId) {
 
   const servedIndex = servedEntries.findIndex((item) => sameUser(item, userId));
   if (servedIndex !== -1) servedEntries.splice(servedIndex, 1);
-  syncQueueLength(service.id);
 
   const result = describeEntry(entry, service);
   recordHistory(entry, service, 'joined_queue', 'Joined');
@@ -121,14 +114,13 @@ function joinQueue(userId, serviceId) {
   return result;
 }
 
-function leaveQueue(userId, serviceId) {
+async function leaveQueue(userId, serviceId) {
   validateUserId(userId);
-  const service = getServiceById(serviceId);
+  const service = await getServiceById(serviceId);
   const entry = queueEntries.find((item) => item.serviceId === service.id && sameUser(item, userId));
   if (!entry) throw new AppError('You are not in this queue', 404);
 
   queueEntries.splice(queueEntries.indexOf(entry), 1);
-  syncQueueLength(service.id);
 
   recordHistory(entry, service, 'left_queue', 'Left queue');
   notify(entry, `You left the ${service.name} queue.`);
@@ -137,15 +129,15 @@ function leaveQueue(userId, serviceId) {
 }
 
 // The logged-in user's own status: still waiting, or just served, or neither.
-function getCurrentQueue(userId) {
+async function getCurrentQueue(userId) {
   validateUserId(userId);
   const entry = queueEntries.find((item) => sameUser(item, userId));
   if (entry) {
-    return { currentQueue: describeEntry(entry, getServiceById(entry.serviceId)), lastServed: null };
+    return { currentQueue: describeEntry(entry, await getServiceById(entry.serviceId)), lastServed: null };
   }
   const served = servedEntries.find((item) => sameUser(item, userId));
   if (!served) return { currentQueue: null, lastServed: null };
-  const service = getServiceById(served.serviceId);
+  const service = await getServiceById(served.serviceId);
   return {
     currentQueue: null,
     lastServed: { serviceId: service.id, serviceName: service.name, servedAt: served.servedAt },
@@ -153,8 +145,8 @@ function getCurrentQueue(userId) {
 }
 
 // Admin view of one service's queue, in serving order.
-function getQueue(serviceId) {
-  const service = getServiceById(serviceId);
+async function getQueue(serviceId) {
+  const service = await getServiceById(serviceId);
   const ordered = sortedEntries(service.id);
   return {
     service: {
@@ -178,8 +170,8 @@ function getQueue(serviceId) {
   };
 }
 
-function serveNext(serviceId) {
-  const service = getServiceById(serviceId);
+async function serveNext(serviceId) {
+  const service = await getServiceById(serviceId);
   const [next] = sortedEntries(service.id);
   if (!next) throw new AppError('No one is waiting in this queue', 409);
 
@@ -187,7 +179,6 @@ function serveNext(serviceId) {
   const servedIndex = servedEntries.findIndex((item) => sameUser(item, next.userId));
   if (servedIndex !== -1) servedEntries.splice(servedIndex, 1);
   servedEntries.push({ userId: next.userId, serviceId: service.id, servedAt: new Date().toISOString() });
-  syncQueueLength(service.id);
 
   recordHistory(next, service, 'served', 'Served');
   notify(next, `It's your turn at ${service.name}. You have been served.`);
@@ -199,8 +190,8 @@ function serveNext(serviceId) {
 }
 
 // Per-service size and the wait a new joiner would face (used by the Join Queue screen).
-function getQueueSummaries() {
-  return services.map((service) => {
+async function getQueueSummaries() {
+  return (await listServices()).map((service) => {
     const rank = PRIORITY_RANK[service.priority];
     const entries = queueEntries.filter((entry) => entry.serviceId === service.id);
     const ahead = entries.filter((entry) => PRIORITY_RANK[entry.priority] >= rank).length;
@@ -216,7 +207,6 @@ function getQueueSummaries() {
 function resetQueues() {
   queueEntries.length = 0;
   servedEntries.length = 0;
-  services.forEach((service) => { service.queueLength = 0; });
 }
 
 module.exports = {
