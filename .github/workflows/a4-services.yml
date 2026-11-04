@@ -1,0 +1,46 @@
+name: A4 service database tests
+on:
+  push:
+    branches: [feature/a4-toby-services]
+  pull_request:
+    paths:
+      - '4353-project/backend/**'
+      - '4353-project/frontend/**'
+      - '.github/workflows/a4-services.yml'
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: queuesmart
+          POSTGRES_PASSWORD: ci_test_password
+          POSTGRES_DB: queuesmart_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U queuesmart -d queuesmart_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      TEST_DATABASE_URL: postgresql://queuesmart:ci_test_password@localhost:5432/queuesmart_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            4353-project/backend/package-lock.json
+            4353-project/frontend/package-lock.json
+      - run: npm ci && npm run coverage
+        working-directory: 4353-project/backend
+      - run: npm ci && npm run test:services && npm run build
+        working-directory: 4353-project/frontend
+      - uses: actions/upload-artifact@v4
+        with:
+          name: a4-backend-coverage
+          path: 4353-project/backend/coverage
