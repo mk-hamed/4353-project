@@ -1,3 +1,5 @@
+> Assignment 4: see [Toby's database setup and integration guide](A4-Toby-Setup.md). The service methods are now asynchronous and use PostgreSQL; the A3 notes below describe the previous implementation.
+
 # A3 Member 2: Service Management and Wait Times
 
 ## Scope

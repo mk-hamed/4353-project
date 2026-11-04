@@ -8,19 +8,19 @@ const requireUser = requireRole('user');
 router.use(authenticate);
 
 // Order matters: /current must be declared before /:serviceId.
-router.get('/', (req, res) => res.json(queueService.getQueueSummaries()));
-router.get('/current', requireUser, (req, res) => res.json(queueService.getCurrentQueue(req.user.id)));
+router.get('/', async (req, res) => res.json(await queueService.getQueueSummaries()));
+router.get('/current', requireUser, async (req, res) => res.json(await queueService.getCurrentQueue(req.user.id)));
 
-router.post('/:serviceId/join', requireUser, (req, res) => {
-  res.status(201).json(queueService.joinQueue(req.user.id, req.params.serviceId));
+router.post('/:serviceId/join', requireUser, async (req, res) => {
+  res.status(201).json(await queueService.joinQueue(req.user.id, req.params.serviceId));
 });
-router.post('/:serviceId/leave', requireUser, (req, res) => {
-  res.json(queueService.leaveQueue(req.user.id, req.params.serviceId));
+router.post('/:serviceId/leave', requireUser, async (req, res) => {
+  res.json(await queueService.leaveQueue(req.user.id, req.params.serviceId));
 });
 
-router.get('/:serviceId', requireAdmin, (req, res) => res.json(queueService.getQueue(req.params.serviceId)));
-router.post('/:serviceId/serve-next', requireAdmin, (req, res) => {
-  res.json(queueService.serveNext(req.params.serviceId));
+router.get('/:serviceId', requireAdmin, async (req, res) => res.json(await queueService.getQueue(req.params.serviceId)));
+router.post('/:serviceId/serve-next', requireAdmin, async (req, res) => {
+  res.json(await queueService.serveNext(req.params.serviceId));
 });
 
 module.exports = router;

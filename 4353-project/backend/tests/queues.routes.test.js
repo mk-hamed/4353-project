@@ -1,6 +1,6 @@
 const request = require('supertest');
 const app = require('../app');
-const { services } = require('../mock/data');
+const { updateService } = require('../services/serviceService');
 const { resetQueues } = require('../services/queueService');
 
 async function login(email, password = 'Queue123!') {
@@ -23,9 +23,9 @@ beforeAll(async () => {
   third = await login('third@queuesmart.test');
 });
 
-beforeEach(() => {
+beforeEach(async () => {
   resetQueues();
-  services.find((s) => s.id === 3).status = 'closed';
+  await updateService(3, { status: 'closed' });
 });
 
 describe('authentication and roles', () => {
