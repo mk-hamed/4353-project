@@ -1,5 +1,6 @@
 const bcrypt = require("bcrypt");
 
+// A3 demo fixtures only. Runtime service reads/writes use PostgreSQL.
 const services = [
   {
     id: 1,
@@ -55,7 +56,7 @@ const DEMO_NAMES = [
 ];
 const queueEntries = [];
 let seedSeq = 1;
-services.forEach((service) => {
+(process.env.SEED_DEMO_QUEUES === 'true' ? services : []).forEach((service) => {
   for (let i = 0; i < service.queueLength; i += 1) {
     queueEntries.push({
       id: seedSeq,
