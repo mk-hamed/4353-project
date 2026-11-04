@@ -1,46 +1,47 @@
-QueueSmart A4 - Toby Vu local verification
+QueueSmart A4 - Toby Vu PostgreSQL CI verification
 Date: 2026-11-04
 
-Backend: PGlite 0.5.15 through a test-only database adapter.
-Standard PostgreSQL and the production pg pool still require the included CI run.
+Backend: PostgreSQL 16 with the production pg connection pool.
+GitHub Actions: https://github.com/mk-hamed/4353-project/actions/runs/41894349487
+Verified implementation commit: af655726066d1af65dcbeb9159947c2af9b40e45
 
+File                     | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s
 -------------------------|---------|----------|---------|---------|-------------------
-File                     | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
--------------------------|---------|----------|---------|---------|-------------------
-All files                |   88.71 |    84.79 |   87.85 |   90.14 |                   
- db                      |      50 |    23.07 |   23.07 |   53.33 |                   
-  migrate.js             |      75 |       75 |      40 |   79.16 | 22-23,30-32       
-  pool.js                |       0 |        0 |       0 |       0 | 1-41              
-  seed.js                |      65 |       75 |      25 |   72.22 | 19-20,27-29       
- middleware              |   97.22 |    94.44 |     100 |     100 |                   
-  auth.js                |     100 |      100 |     100 |     100 |                   
-  errorHandler.js        |     100 |      100 |     100 |     100 |                   
-  requireServiceAdmin.js |   85.71 |       75 |     100 |     100 | 6                 
- repositories            |   93.75 |    83.33 |     100 |     100 |                   
-  serviceRepository.js   |   93.75 |    83.33 |     100 |     100 | 23                
- routes                  |   89.39 |      100 |    87.5 |    88.7 |                   
-  auth.js                |   94.11 |      100 |     100 |   94.11 | 27                
-  history.js             |      70 |      100 |      50 |      70 | 16-20             
-  notifications.js       |      70 |      100 |      50 |      70 | 16-20             
-  queues.js              |     100 |      100 |     100 |     100 |                   
-  services.js            |     100 |      100 |     100 |     100 |                   
- services                |   96.95 |    93.97 |   98.43 |   97.86 |                   
-  authService.js         |   90.19 |     82.5 |     100 |   89.36 | 14,20,23,32,87    
-  historyService.js      |     100 |      100 |     100 |     100 |                   
-  notificationService.js |     100 |      100 |     100 |     100 |                   
-  queueCountService.js   |     100 |      100 |     100 |     100 |                   
-  queueService.js        |   97.11 |     92.3 |   96.87 |     100 | 53-64,180         
-  serviceService.js      |     100 |      100 |     100 |     100 |                   
-  waitTimeService.js     |     100 |      100 |     100 |     100 |                   
- utils                   |     100 |        0 |     100 |     100 |                   
-  AppError.js            |     100 |        0 |     100 |     100 | 2                 
+All files                |   92.47 |    88.94 |   90.65 |   94.33 |
+ db                      |      75 |    57.69 |   46.15 |   81.66 |
+  migrate.js             |      75 |       75 |      40 |   79.16 | 22-23,30-32
+  pool.js                |      85 |       50 |      75 |   94.44 | 13
+  seed.js                |      65 |       75 |      25 |   72.22 | 19-20,27-29
+ middleware              |   97.22 |    94.44 |     100 |     100 |
+  auth.js                |     100 |      100 |     100 |     100 |
+  errorHandler.js        |     100 |      100 |     100 |     100 |
+  requireServiceAdmin.js |   85.71 |       75 |     100 |     100 | 6
+ repositories            |   93.75 |    83.33 |     100 |     100 |
+  serviceRepository.js   |   93.75 |    83.33 |     100 |     100 | 23
+ routes                  |   89.39 |      100 |    87.5 |    88.7 |
+  auth.js                |   94.11 |      100 |     100 |   94.11 | 27
+  history.js             |      70 |      100 |      50 |      70 | 16-20
+  notifications.js       |      70 |      100 |      50 |      70 | 16-20
+  queues.js              |     100 |      100 |     100 |     100 |
+  services.js            |     100 |      100 |     100 |     100 |
+ services                |   96.95 |    93.97 |   98.43 |   97.86 |
+  authService.js         |   90.19 |     82.5 |     100 |   89.36 | 14,20,23,32,87
+  historyService.js      |     100 |      100 |     100 |     100 |
+  notificationService.js |     100 |      100 |     100 |     100 |
+  queueCountService.js   |     100 |      100 |     100 |     100 |
+  queueService.js        |   97.11 |     92.3 |   96.87 |     100 | 53-64,180
+  serviceService.js      |     100 |      100 |     100 |     100 |
+  waitTimeService.js     |     100 |      100 |     100 |     100 |
+ utils                   |     100 |        0 |     100 |     100 |
+  AppError.js            |     100 |        0 |     100 |     100 | 2
 -------------------------|---------|----------|---------|---------|-------------------
 
 Test Suites: 12 passed, 12 total
 Tests:       208 passed, 208 total
 Snapshots:   0 total
-Time:        34.142 s, estimated 36 s
+Time:        7.938 s
+Ran all test suites.
 
 Frontend Service API: 6 tests passed.
 Vite production build: passed.
-Browser: admin login, create, edit, backend restart, and refresh persistence passed.
+Earlier local browser check: admin login, create, edit, backend restart, and refresh persistence passed.

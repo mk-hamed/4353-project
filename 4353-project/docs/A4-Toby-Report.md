@@ -26,18 +26,18 @@ Service has no outgoing foreign keys. Queue should reference `"Service"("service
 
 ### Testing and evidence
 
-The local backend run passed **208 tests across 12 suites**. Tests cover normal service operations, validation failures, database constraints, duplicate-name requests, SQL-like input, concurrent partial updates, administrator authorization, queue integration, and persistence. The persistence test starts a backend process, creates and updates a service over HTTP, stops the process, starts a new process, and verifies that the record and its changes remain available.
+The GitHub Actions PostgreSQL 16 backend run passed **208 tests across 12 suites**. Tests cover normal service operations, validation failures, database constraints, duplicate-name requests, SQL-like input, concurrent partial updates, administrator authorization, queue integration, and persistence. The persistence test starts a backend process, creates and updates a service over HTTP, stops the process, starts a new process, and verifies that the record and its changes remain available.
 
-| Local backend coverage | Result |
+| PostgreSQL CI backend coverage | Result |
 | --- | ---: |
-| Statements | 88.71% |
-| Branches | 84.79% |
-| Functions | 87.85% |
-| Lines | 90.14% |
+| Statements | 92.47% |
+| Branches | 88.94% |
+| Functions | 90.65% |
+| Lines | 94.33% |
 
 The service business logic and shared wait-time function each reached 100% statement, branch, function, and line coverage in this run. All six frontend Service API tests passed, and the Vite production build succeeded. A browser check also passed admin login, service creation, editing, backend restart, and refresh persistence.
 
-**Validation scope:** Local SQL integration used PGlite 0.5.15, an embedded PostgreSQL build, through a test-only database adapter. It exercised SQL and disk persistence but did not validate the production `pg` connection pool or a standard PostgreSQL server. The recorded coverage includes the production pool as uncovered. A GitHub Actions workflow is included for PostgreSQL 16. Check the feature branch workflow results for standard PostgreSQL verification. The team should rerun `npm run coverage` against its agreed PostgreSQL test database and use that final coverage evidence in the combined submission.
+**Validation scope:** [GitHub Actions run 41894349487](https://github.com/mk-hamed/4353-project/actions/runs/41894349487) passed against standard PostgreSQL 16 using the production `pg` connection pool on implementation commit `af655726066d1af65dcbeb9159947c2af9b40e45`. This run verifies the SQL constraints, API integration, and backend-restart persistence, and produced the coverage figures above. Earlier local testing used PGlite 0.5.15 through a test-only adapter; the reported figures now come from standard PostgreSQL CI. The team should rerun coverage after integrating all members' modules for the combined submission.
 
 ### Contribution table
 
@@ -47,8 +47,10 @@ The service business logic and shared wait-time function each reached 100% state
 
 ### Remaining team integration
 
-PostgreSQL is the working choice from the team proposal and still needs confirmation. The shared setup owner, connection configuration, and full schema must be agreed on. The queue count adapter currently reads A3 queue entries until Asad replaces it with a QueueEntry database query. Authentication, queues, notifications, and history still need their owners' persistence work. This is Toby's report section, not the full group submission. PR review, merge, standard PostgreSQL verification, and the final combined report remain outstanding.
+PostgreSQL is the working choice from the team proposal and still needs confirmation. The shared setup owner, connection configuration, and full schema must be agreed on. The queue count adapter currently reads A3 queue entries until Asad replaces it with a QueueEntry database query. Authentication, queues, notifications, and history still need their owners' persistence work. This is Toby's report section, not the full group submission. PR review, merge, integration of all members' database modules, and the final combined report remain outstanding.
 
 Repository: https://github.com/mk-hamed/4353-project
 
 Implementation branch: `feature/a4-toby-services`. GitHub commit history records the implementation and documentation changes.
+
+Pull request: https://github.com/mk-hamed/4353-project/pull/18
