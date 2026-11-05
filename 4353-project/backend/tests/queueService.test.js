@@ -1,4 +1,4 @@
-const { services, queueEntries } = require('../mock/data');
+const { services } = require('../mock/data');
 const { updateService, getServiceById } = require('../services/serviceService');
 const queue = require('../services/queueService');
 const { getNotifications } = require('../services/notificationService');
@@ -22,7 +22,7 @@ describe('seed data', () => {
 
 describe('queueService', () => {
   beforeEach(async () => {
-    queue.resetQueues();
+    await queue.resetQueues();
     await setPriority(1, 'medium');
     await setPriority(2, 'high');
     await setStatus(1, 'open');
@@ -130,13 +130,13 @@ describe('queueService', () => {
       expect((await queue.getQueue(1)).queue.map((e) => e.userId)).toEqual([101, 103, 102]);
     });
 
-    test('does not reorder the stored array when reading a queue', async () => {
+    test('reading a queue twice gives the same order', async () => {
       await queue.joinQueue(101, 1);
       await setPriority(1, 'high');
       await queue.joinQueue(102, 1);
-      const before = queueEntries.map((e) => e.userId);
-      await queue.getQueue(1);
-      expect(queueEntries.map((e) => e.userId)).toEqual(before);
+      const first = (await queue.getQueue(1)).queue.map((e) => e.userId);
+      expect((await queue.getQueue(1)).queue.map((e) => e.userId)).toEqual(first);
+      expect(first).toEqual([102, 101]);
     });
   });
 

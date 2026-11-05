@@ -67,3 +67,21 @@ npm run coverage
 Tests: `tests/queueService.test.js` (rules, validation, ordering, notifications, history) and `tests/queues.routes.test.js` (endpoints with real logins, role checks, error codes, history and notification side effects).
 
 Manual check: sign in as the user, join Student Inquiries (position 5), sign in as the admin in a second browser, press **Serve next** until the user is position 2 (status becomes Almost ready and a notification is created), then serve once more and watch the user's status change to Served.
+
+## A4: PostgreSQL persistence
+
+Queues and queue entries are stored in PostgreSQL (migration `backend/db/migrations/002_queue.sql`, queries in `backend/repositories/queueRepository.js`). The routes, response shapes and screens are unchanged; `queueService.js` keeps the rules and calls the repository.
+
+| Table | Columns | Rules |
+| --- | --- | --- |
+| `"Queue"` | `queueId` (PK), `serviceId` (FK to `"Service"`, unique), `status` (open/closed), `createdAt` | One queue per service, created on the first join |
+| `"QueueEntry"` | `entryId` (PK), `queueId` (FK), `userId`, `priorityRank` (1-3), `status` (waiting/served/canceled), `joinedAt`, `endedAt`, `almostReadyNotified` | A partial unique index allows one `waiting` entry per user; `endedAt` is set exactly when the entry is no longer waiting |
+
+- **Position is computed, not stored.** It is the row number of waiting entries ordered by `priorityRank` descending, then `entryId` (arrival). The rank is the service priority at join time.
+- **Leave** sets the entry to `canceled`; **serve next** sets the first waiting entry to `served`. Finished rows are kept, so "just served" comes from the user's latest entry.
+- **Queue length** (`queueCountService`) counts waiting rows. It is not a column on `"Service"`.
+- Each join, leave and serve runs in one transaction and takes a per-service lock, so simultaneous requests cannot break ordering or double-serve a person. History and notifications are created only after the transaction commits.
+- `userId` has no foreign key yet because accounts are still in memory. Add one to `UserCredentials` when that table exists.
+- Demo queue entries from A3 are gone; tests insert their own fixtures.
+
+Persistence check: join a queue, stop the backend, start it again, and the position is unchanged. `tests/queuePersistence.test.js` covers statuses, constraints, concurrency and reopening the connection pool.
