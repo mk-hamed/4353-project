@@ -85,11 +85,11 @@ test('repeated migration and seed do not overwrite edited services', async () =>
   await migrate();
   await seed();
   expect((await service.getServiceById(1)).name).toBe('Renamed service');
-  expect((await db.query('SELECT * FROM schema_migrations')).rows).toHaveLength(1);
+  expect((await db.query('SELECT * FROM schema_migrations')).rows).toHaveLength(2); // 001_service + 002_queue
 });
 
 test('queues read updated duration, status and new services from the database', async () => {
-  queue.resetQueues();
+  await queue.resetQueues();
   const created = await service.createService(valid);
   expect(await queue.joinQueue(2, created.id)).toMatchObject({ estimatedWaitMin: 20 });
   await service.updateService(created.id, { durationMin: 35, status: 'closed' });

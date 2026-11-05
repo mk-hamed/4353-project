@@ -35,7 +35,7 @@ describe('service logic', () => {
   });
 
   test('supports an empty catalog and explicit closed status', async () => {
-    await db.query('TRUNCATE TABLE "Service" RESTART IDENTITY');
+    await db.query('TRUNCATE TABLE "Service", "Queue", "QueueEntry" RESTART IDENTITY CASCADE');
     expect(await createService({ ...valid, status: 'closed' })).toMatchObject({ id: 1, status: 'closed' });
   });
 

@@ -24,7 +24,7 @@ beforeAll(async () => {
 });
 
 beforeEach(async () => {
-  resetQueues();
+  await resetQueues();
   await updateService(3, { status: 'closed' });
 });
 

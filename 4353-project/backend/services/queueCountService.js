@@ -1,9 +1,8 @@
-const { queueEntries } = require('../mock/data');
+const { countWaiting } = require('../repositories/queueRepository');
 
-// A3 compatibility: Asad will replace this count with a QueueEntry database query.
-// Queue length is derived queue data, never a persisted Service column.
-function getQueueLength(serviceId) {
-  return queueEntries.filter((entry) => entry.serviceId === serviceId).length;
+// Queue length is derived from waiting QueueEntry rows, never stored on Service.
+async function getQueueLength(serviceId) {
+  return (await countWaiting()).get(serviceId) || 0;
 }
 
 module.exports = { getQueueLength };
