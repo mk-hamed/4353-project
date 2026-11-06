@@ -10,7 +10,8 @@
     "coverage": "jest --runInBand --coverage",
     "db:migrate": "node db/migrate.js",
     "db:seed": "node db/seed.js",
-    "test:services": "jest --runInBand serviceManagement services.test waitTime serviceDatabase"
+    "test:services": "jest --runInBand serviceManagement services.test waitTime serviceDatabase",
+    "db:seed:users": "node db/seedUsers.js"
   },
   "keywords": [],
   "author": "",
