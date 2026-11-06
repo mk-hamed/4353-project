@@ -1,7 +1,7 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const AppError = require("../utils/AppError");
-const { users } = require("../mock/data");
+const db = require("../db/pool");
 const { JWT_SECRET, TOKEN_EXPIRES_IN } = require("../config");
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -36,26 +36,29 @@ function validateRegistration({ email, password } = {}) {
   }
 }
 
-function toPublicUser(user) {
-  return { id: user.id, email: user.email, role: user.role };
-}
-
-function nextUserId() {
-  return Math.max(0, ...users.map((u) => u.id)) + 1;
+function toPublicUser(row) {
+  return { id: row.userId, email: row.email, role: row.role };
 }
 
 async function register(input) {
   validateRegistration(input);
   const email = input.email.trim().toLowerCase();
-
-  if (users.some((u) => u.email === email)) {
-    throw new AppError("Email is already registered", 409);
-  }
-
   const passwordHash = await bcrypt.hash(input.password, 10);
-  const user = { id: nextUserId(), email, passwordHash, role: "user" };
-  users.push(user);
-  return toPublicUser(user);
+
+  try {
+    const result = await db.query(
+      `INSERT INTO "UserCredentials" (email, "passwordHash", role)
+       VALUES ($1, $2, 'user')
+       RETURNING "userId", email, role`,
+      [email, passwordHash]
+    );
+    return toPublicUser(result.rows[0]);
+  } catch (error) {
+    if (error.code === "23505") {
+      throw new AppError("Email is already registered", 409);
+    }
+    throw error;
+  }
 }
 
 async function login({ email, password } = {}) {
@@ -68,25 +71,36 @@ async function login({ email, password } = {}) {
     throw new AppError("Email and Password are required", 400);
   }
 
-  const user = users.find((u) => u.email === email.trim().toLowerCase());
+  const result = await db.query(
+    `SELECT "userId", email, "passwordHash", role
+     FROM "UserCredentials" WHERE email = $1`,
+    [email.trim().toLowerCase()]
+  );
+  const user = result.rows[0];
   const passwordOk =
     user && (await bcrypt.compare(password, user.passwordHash));
   if (!passwordOk) {
     throw new AppError("Invalid email or password", 401);
   }
 
-  const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, {
+  const token = jwt.sign({ id: user.userId, role: user.role }, JWT_SECRET, {
     expiresIn: TOKEN_EXPIRES_IN,
   });
   return { token, user: toPublicUser(user) };
 }
 
-function getUserById(id) {
-  const user = users.find((u) => u.id === id);
-  if (!user) {
+async function getUserById(id) {
+  if (!Number.isInteger(id)) {
     throw new AppError("User no longer exists", 401);
   }
-  return toPublicUser(user);
+  const result = await db.query(
+    `SELECT "userId", email, role FROM "UserCredentials" WHERE "userId" = $1`,
+    [id]
+  );
+  if (!result.rows[0]) {
+    throw new AppError("User no longer exists", 401);
+  }
+  return toPublicUser(result.rows[0]);
 }
 
 module.exports = { register, login, validateRegistration, getUserById };
