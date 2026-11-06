@@ -3,6 +3,7 @@ const { register, login, getUserById } = require("../services/authService");
 const db = require("../db/pool");
 const { seedUsers } = require("../db/seedUsers");
 const { JWT_SECRET } = require("../config");
+const { getEmailsByIds } = require("../services/authService");
 
 beforeAll(async () => {
   await seedUsers();
@@ -153,7 +154,11 @@ describe("database behavior", () => {
 describe("getUserById", () => {
   it("returns the public user for an existing id", async () => {
     const user = await getUserById(1);
-    expect(user).toEqual({ id: 1, email: "admin@queuesmart.test", role: "admin" });
+    expect(user).toEqual({
+      id: 1,
+      email: "admin@queuesmart.test",
+      role: "admin",
+    });
   });
 
   it("throws 401 for an id that does not exist", async () => {
@@ -162,5 +167,18 @@ describe("getUserById", () => {
 
   it("throws 401 for a non-integer id", async () => {
     await expect(getUserById("abc")).rejects.toMatchObject({ statusCode: 401 });
+  });
+});
+
+describe("getEmailsByIds", () => {
+  it("maps ids to emails and ignores unknown or invalid ids", async () => {
+    const emails = await getEmailsByIds([1, 2, 9999, "abc"]);
+    expect(emails.get(1)).toBe("admin@queuesmart.test");
+    expect(emails.get(2)).toBe("user@queuesmart.test");
+    expect(emails.has(9999)).toBe(false);
+  });
+
+  it("returns an empty map for an empty list", async () => {
+    expect((await getEmailsByIds([])).size).toBe(0);
   });
 });

@@ -1,5 +1,5 @@
 const AppError = require('../utils/AppError');
-const { users } = require('../mock/data');
+const { getEmailsByIds } = require('./authService');
 const repo = require('../repositories/queueRepository');
 const { getServiceById, listServices } = require('./serviceService');
 const { calculateWaitTime } = require('./waitTimeService');
@@ -24,11 +24,6 @@ function validateUserId(userId) {
 
 function statusForPosition(position) {
   return position <= ALMOST_READY_POSITION ? 'almost-ready' : 'waiting';
-}
-
-function emailFor(userId) {
-  const user = users.find((item) => String(item.id) === String(userId));
-  return user ? user.email : null;
 }
 
 function describeEntry(row, service) {
@@ -143,6 +138,7 @@ async function getCurrentQueue(userId) {
 async function getQueue(serviceId) {
   const service = await getServiceById(serviceId);
   const ordered = await repo.listWaiting(service.id);
+  const emails = await getEmailsByIds(ordered.map((row) => row.userId));
   return {
     service: {
       id: service.id,
@@ -155,7 +151,7 @@ async function getQueue(serviceId) {
     queue: ordered.map((row) => ({
       entryId: row.entryId,
       userId: row.userId,
-      email: emailFor(row.userId),
+      email: emails.get(Number(row.userId)) ?? null,
       priority: PRIORITY_NAME[row.priorityRank],
       joinedAt: new Date(row.joinedAt).toISOString(),
       position: row.position,
@@ -178,10 +174,11 @@ async function serveNext(serviceId) {
   await recordHistory(next.userId, service, 'served', 'Served');
   await notify(next.userId, `It's your turn at ${service.name}. You have been served.`);
   await sendAlmostReady(service, claimed);
+  const emails = await getEmailsByIds([next.userId]);
   return {
     served: {
       userId: next.userId,
-      email: emailFor(next.userId),
+      email: emails.get(Number(next.userId)) ?? null,
       priority: PRIORITY_NAME[next.priorityRank],
       joinedAt: new Date(next.joinedAt).toISOString(),
     },

@@ -103,4 +103,14 @@ async function getUserById(id) {
   return toPublicUser(result.rows[0]);
 }
 
-module.exports = { register, login, validateRegistration, getUserById };
+async function getEmailsByIds(userIds) {
+  const ids = [...new Set(userIds.map(Number))].filter(Number.isInteger);
+  if (ids.length === 0) return new Map();
+  const result = await db.query(
+    `SELECT "userId", email FROM "UserCredentials" WHERE "userId" = ANY($1::int[])`,
+    [ids]
+  );
+  return new Map(result.rows.map((row) => [row.userId, row.email]));
+}
+
+module.exports = { register, login, validateRegistration, getUserById, getEmailsByIds };
