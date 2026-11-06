@@ -1,9 +1,16 @@
 const request = require("supertest");
+const jwt = require("jsonwebtoken");
 const app = require("../app");
-const { users } = require("../mock/data");
+const db = require("../db/pool");
+const { seedUsers } = require("../db/seedUsers");
+const { JWT_SECRET } = require("../config");
 
-beforeEach(() => {
-  users.splice(2);
+beforeAll(async () => {
+  await seedUsers();
+});
+
+beforeEach(async () => {
+  await db.query('DELETE FROM "UserCredentials" WHERE "userId" > 2');
 });
 
 describe("POST /api/auth/register", () => {
@@ -37,8 +44,11 @@ describe("POST /api/auth/register", () => {
       .send({ email: "sneaky@test.com", password: "password1", role: "admin" });
     expect(res.statusCode).toBe(201);
     expect(res.body.role).toBe("user");
-    const stored = users.find((u) => u.email === "sneaky@test.com");
-    expect(stored.role).toBe("user");
+    const { rows } = await db.query(
+      'SELECT role FROM "UserCredentials" WHERE email = $1',
+      ["sneaky@test.com"],
+    );
+    expect(rows[0].role).toBe("user");
   });
 });
 
@@ -75,5 +85,28 @@ describe("GET /api/auth/me", () => {
       .set("Authorization", `Bearer ${login.body.token}`);
     expect(res.statusCode).toBe(200);
     expect(res.body.email).toBe("admin@queuesmart.test");
+  });
+
+  it("returns 401 when the token is valid but the user no longer exists", async () => {
+    const token = jwt.sign({ id: 9999, role: "user" }, JWT_SECRET);
+    const res = await request(app)
+      .get("/api/auth/me")
+      .set("Authorization", `Bearer ${token}`);
+    expect(res.statusCode).toBe(401);
+  });
+
+  it("lets a newly registered user log in and fetch their own profile", async () => {
+    await request(app)
+      .post("/api/auth/register")
+      .send({ email: "flow@test.com", password: "password1" });
+    const login = await request(app)
+      .post("/api/auth/login")
+      .send({ email: "flow@test.com", password: "password1" });
+    const res = await request(app)
+      .get("/api/auth/me")
+      .set("Authorization", `Bearer ${login.body.token}`);
+    expect(res.statusCode).toBe(200);
+    expect(res.body.email).toBe("flow@test.com");
+    expect(res.body.role).toBe("user");
   });
 });
