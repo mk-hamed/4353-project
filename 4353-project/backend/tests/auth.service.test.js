@@ -1,10 +1,15 @@
 const jwt = require("jsonwebtoken");
-const { register, login } = require("../services/authService");
-const { users } = require("../mock/data");
+const { register, login, getUserById } = require("../services/authService");
+const db = require("../db/pool");
+const { seedUsers } = require("../db/seedUsers");
 const { JWT_SECRET } = require("../config");
 
-beforeEach(() => {
-  users.splice(2);
+beforeAll(async () => {
+  await seedUsers();
+});
+
+beforeEach(async () => {
+  await db.query('DELETE FROM "UserCredentials" WHERE "userId" > 2');
 });
 
 describe("register", () => {
@@ -19,8 +24,12 @@ describe("register", () => {
 
   it("stores a hash, not the plain password", async () => {
     await register({ email: "a@test.com", password: "password1" });
-    const stored = users.find((u) => u.email === "a@test.com");
-    expect(stored.passwordHash).not.toBe("password1");
+    const { rows } = await db.query(
+      'SELECT "passwordHash" FROM "UserCredentials" WHERE email = $1',
+      ["a@test.com"],
+    );
+    expect(rows[0].passwordHash).not.toBe("password1");
+    expect(rows[0].passwordHash).toMatch(/^\$2[aby]\$/);
   });
 
   it("rejects a missing email", async () => {
@@ -108,5 +117,50 @@ describe("login", () => {
     await expect(login({ email: "a@test.com" })).rejects.toMatchObject({
       statusCode: 400,
     });
+  });
+});
+
+describe("database behavior", () => {
+  it("lets only one of two simultaneous registrations with the same email succeed", async () => {
+    const attempt = () =>
+      register({ email: "race@test.com", password: "password1" });
+    const results = await Promise.allSettled([attempt(), attempt()]);
+    const fulfilled = results.filter((r) => r.status === "fulfilled");
+    const rejected = results.filter((r) => r.status === "rejected");
+    expect(fulfilled).toHaveLength(1);
+    expect(rejected[0].reason.statusCode).toBe(409);
+  });
+
+  it("rejects an upper-case email inserted directly (database constraint)", async () => {
+    await expect(
+      db.query(
+        `INSERT INTO "UserCredentials" (email, "passwordHash", role)
+         VALUES ('Bad@Test.com', 'x', 'user')`,
+      ),
+    ).rejects.toThrow();
+  });
+
+  it("rejects an invalid role inserted directly (database constraint)", async () => {
+    await expect(
+      db.query(
+        `INSERT INTO "UserCredentials" (email, "passwordHash", role)
+         VALUES ('r@test.com', 'x', 'superuser')`,
+      ),
+    ).rejects.toThrow();
+  });
+});
+
+describe("getUserById", () => {
+  it("returns the public user for an existing id", async () => {
+    const user = await getUserById(1);
+    expect(user).toEqual({ id: 1, email: "admin@queuesmart.test", role: "admin" });
+  });
+
+  it("throws 401 for an id that does not exist", async () => {
+    await expect(getUserById(9999)).rejects.toMatchObject({ statusCode: 401 });
+  });
+
+  it("throws 401 for a non-integer id", async () => {
+    await expect(getUserById("abc")).rejects.toMatchObject({ statusCode: 401 });
   });
 });
