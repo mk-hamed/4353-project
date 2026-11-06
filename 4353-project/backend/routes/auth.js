@@ -20,9 +20,9 @@ router.post("/login", async (req, res, next) => {
   }
 });
 
-router.get("/me", authenticate, (req, res, next) => {
+router.get("/me", authenticate, async (req, res, next) => {
   try {
-    res.json(authService.getUserById(req.user.id));
+    res.json(await authService.getUserById(req.user.id));
   } catch (err) {
     next(err);
   }

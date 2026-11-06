@@ -1,5 +1,6 @@
 const { randomBytes } = require('node:crypto');
 const path = require('node:path');
+const { seedUsers } = require('../db/seedUsers');
 require('dotenv').config({ path: path.join(__dirname, '../.env'), quiet: true });
 
 if (!process.env.TEST_DATABASE_URL) {
@@ -29,6 +30,7 @@ async function seedDemoQueues() {
 beforeAll(async () => {
   await db.query(`CREATE SCHEMA "${schema}"`);
   await migrate();
+  await seedUsers();
 });
 
 beforeEach(async () => {
