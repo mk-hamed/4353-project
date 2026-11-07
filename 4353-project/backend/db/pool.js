@@ -16,7 +16,6 @@ function getPool() {
     if (!/^[a-z_][a-z0-9_]*$/.test(schema)) throw new Error('Invalid DB_SCHEMA');
     pool = new Pool({
       connectionString,
-      options: `-c search_path=${schema}`,
       max: Number(process.env.DB_POOL_MAX || 10),
       connectionTimeoutMillis: 5000,
       idleTimeoutMillis: 10000,

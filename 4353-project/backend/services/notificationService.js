@@ -1,7 +1,5 @@
 const AppError = require('../utils/AppError');
-
-const notifications = [];
-let nextId = 1;
+const notificationRepository = require('../repositories/notificationsRepository');
 
 function validateUserId(userId) {
   if (
@@ -12,7 +10,7 @@ function validateUserId(userId) {
   }
 }
 
-function addNotification(userId, message) {
+async function addNotification(userId, message) {
   validateUserId(userId);
 
   if (typeof message !== 'string' || !message.trim()) {
@@ -23,25 +21,13 @@ function addNotification(userId, message) {
     throw new AppError('message must be 500 characters or fewer', 400);
   }
 
-  const notification = {
-    id: nextId++,
-    userId: String(userId),
-    message: message.trim(),
-    createdAt: new Date().toISOString(),
-    read: false,
-  };
-
-  notifications.push(notification);
-
-  return { ...notification };
+  return await notificationRepository.create(userId, message.trim());
 }
 
-function getNotifications(userId) {
+async function getNotifications(userId) {
   validateUserId(userId);
 
-  return notifications
-    .filter((notification) => notification.userId === String(userId))
-    .map((notification) => ({ ...notification }));
+  return await notificationRepository.findByUserId(userId);
 }
 
 module.exports = {

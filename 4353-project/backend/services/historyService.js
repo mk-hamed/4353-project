@@ -1,58 +1,32 @@
 const AppError = require('../utils/AppError');
-
-const history = [];
-let nextId = 1;
+const historyRepository = require('../repositories/historyRepository');
 
 function validateUserId(userId) {
-  if (
-    (typeof userId !== 'string' && typeof userId !== 'number') ||
-    String(userId).trim() === ''
-  ) {
-    throw new AppError(
-      'userId must be a non-empty string or number',
-      400
-    );
-  }
+    if (
+        (typeof userId !== 'string' && typeof userId !== 'number') ||
+        String(userId).trim() === ''
+    ) {
+        throw new AppError('userId must be a non-empty string or number', 400);
+    }
 }
 
-function addHistoryRecord(userId, record) {
-  validateUserId(userId);
+async function addHistoryRecord(userId, record) {
+    validateUserId(userId);
 
-  if (
-    record === null ||
-    typeof record !== 'object' ||
-    Array.isArray(record)
-  ) {
-    throw new AppError('record must be an object', 400);
-  }
+    if (!record || typeof record !== 'object' || Array.isArray(record)) {
+        throw new AppError('Record must be an object', 400);
+    }
 
-  const historyRecord = {
-    id: nextId++,
-    userId: String(userId),
-    record: { ...record },
-    createdAt: new Date().toISOString(),
-  };
-
-  history.push(historyRecord);
-
-  return {
-    ...historyRecord,
-    record: { ...historyRecord.record },
-  };
+    return await historyRepository.create(userId, record);
 }
 
-function getHistory(userId) {
-  validateUserId(userId);
+async function getHistory(userId) {
+    validateUserId(userId);
 
-  return history
-    .filter((entry) => entry.userId === String(userId))
-    .map((entry) => ({
-      ...entry,
-      record: { ...entry.record },
-    }));
+    return await historyRepository.findByUserId(userId);
 }
 
 module.exports = {
-  addHistoryRecord,
-  getHistory,
+    addHistoryRecord,
+    getHistory
 };

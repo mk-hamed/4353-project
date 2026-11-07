@@ -6,18 +6,30 @@ const {
 } = require('../services/historyService');
 
 // Get history records for a specific user
-router.get('/:userId', (req, res) => {
-  const history = getHistory(req.params.userId);
-  res.json(history);
+router.get('/:userId', async (req, res) => {
+  try {
+    const history = await getHistory(req.params.userId);
+    res.json(history);
+  } catch (error) {
+    res.status(error.statusCode || 500).json({
+      error: error.message,
+    });
+  }
 });
 
 // Add a history record
-router.post('/', (req, res) => {
-  const { userId, record } = req.body;
+router.post('/', async (req, res) => {
+  try {
+    const { userId, record } = req.body;
 
-  const historyRecord = addHistoryRecord(userId, record);
+    const historyRecord = await addHistoryRecord(userId, record);
 
-  res.status(201).json(historyRecord);
+    res.status(201).json(historyRecord);
+  } catch (error) {
+    res.status(error.statusCode || 500).json({
+      error: error.message,
+    });
+  }
 });
 
 module.exports = router;
